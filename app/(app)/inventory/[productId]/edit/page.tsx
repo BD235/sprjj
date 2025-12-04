@@ -48,6 +48,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
     prisma.supplier.findMany({
       where: { userId: dbUserId },
       orderBy: { name: "asc" },
+      select: { id: true, name: true },
     }),
   ]);
 

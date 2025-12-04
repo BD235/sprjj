@@ -36,6 +36,7 @@ export default async function AddProductPage() {
   const suppliers = await prisma.supplier.findMany({
     where: { userId: dbUserId },
     orderBy: { name: "asc" },
+    select: { id: true, name: true },
   });
 
   return (

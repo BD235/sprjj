@@ -39,6 +39,7 @@ export default async function NewTransactionPage() {
     prisma.supplier.findMany({
       where: { userId: dbUserId },
       orderBy: { name: "asc" },
+      select: { id: true, name: true },
     }),
   ]);
 
