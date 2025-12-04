@@ -1,17 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ensureUserInDB } from "@/lib/auth";
 import { requireAnyRole } from "@/lib/role-guard";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(
-  _request: Request,
-  { params }: { params: { productId: string } },
+  _request: NextRequest,
+  { params }: { params: Promise<{ productId: string }> },
 ) {
+  const { productId } = await params;
   await requireAnyRole(["PEGAWAI", "OWNER"]);
   const dbUserId = await ensureUserInDB();
 
   const product = await prisma.product.findFirst({
-    where: { id: params.productId, userId: dbUserId },
+    where: { id: productId, userId: dbUserId },
   });
 
   if (!product) {
