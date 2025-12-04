@@ -85,7 +85,7 @@ export default async function DashboardPage() {
     return sum + value;
   }, 0);
   const statusCounts = allProducts.reduce(
-    (acc, product) => {
+    (acc: Record<StockStatus, number>, product: (typeof allProducts)[number]) => {
       const quantity = Number(product.quantity);
       const threshold = Number(product.lowStock ?? 0);
       const status = getStockStatus(quantity, threshold);
