@@ -12,7 +12,7 @@ function extractFieldErrors(error: ZodError): Partial<Record<string, string>> {
   const fieldErrors: Partial<Record<string, string>> = {};
   const flattened = error.flatten().fieldErrors;
   for (const [key, value] of Object.entries(flattened)) {
-    if (value && value[0]) {
+    if (Array.isArray(value) && value[0]) {
       fieldErrors[key] = value[0];
     }
   }
