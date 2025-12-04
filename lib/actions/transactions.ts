@@ -1,7 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { Prisma, PaymentMethod, TransactionStatus } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
+import { PaymentMethod, TransactionStatus } from "@prisma/client";
 import { z } from "zod";
 import { ensureUserInDB, getCurrentUser } from "../auth";
 import { requireAnyRole } from "../role-guard";
@@ -98,7 +99,7 @@ async function assertSupplierOwnership(supplierId: string, ownerIds: OwnerIds) {
 }
 
 function normalizeCurrency(value: number) {
-  return new Prisma.Decimal(value).toFixed(0);
+  return new Decimal(value).toFixed(0);
 }
 
 export async function createTransaction(formData: FormData) {

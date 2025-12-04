@@ -2,7 +2,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { Prisma, MeasurementUnit } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
+import { MeasurementUnit } from "@prisma/client";
 import { ensureUserInDB, getCurrentUser } from "../auth";
 import { requireAnyRole } from "../role-guard";
 import { prisma } from "../prisma";
@@ -26,8 +27,8 @@ const UpdateProductSchema = ProductSchema.extend({
 });
 
 function normalizeCurrency(value: number) {
-  // Store currency as whole Rupiah without fractional noise
-  return new Prisma.Decimal(value).toFixed(0);
+  // Store currency as whole Rupiah tanpa pecahan
+  return new Decimal(value).toFixed(0);
 }
 
 function optionalString(value: FormDataEntryValue | null) {
