@@ -260,13 +260,13 @@ async function getStockActivityData(userId: string) {
     activityMap.set(format(current), { stockIn: 0, stockOut: 0 });
   }
 
-  stockInTransactions.forEach((tx) => {
+  stockInTransactions.forEach((tx: (typeof stockInTransactions)[number]) => {
     const key = format(new Date(tx.transactionDate));
     const bucket = activityMap.get(key);
     if (bucket) bucket.stockIn += Number(tx.quantity);
   });
 
-  stockOutTransactions.forEach((tx) => {
+  stockOutTransactions.forEach((tx: (typeof stockOutTransactions)[number]) => {
     const key = format(new Date(tx.transactionDate));
     const bucket = activityMap.get(key);
     if (bucket) bucket.stockOut += Number(tx.quantity);
