@@ -71,8 +71,6 @@ export async function createSupplier(formData: FormData) {
     const destination = redirectPreference ?? "/supplier";
     redirect(destination);
   }
-
-  return { success: true };
 }
 
 export async function deleteSupplier(formData: FormData) {
@@ -151,6 +149,4 @@ export async function updateSupplier(formData: FormData) {
     const destination = redirectPreference ?? "/supplier";
     redirect(destination);
   }
-
-  return { success: true };
 }
