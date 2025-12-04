@@ -22,7 +22,7 @@ export default async function SupplierPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const items = suppliers.map((supplier) => ({
+  const items = suppliers.map((supplier: (typeof suppliers)[number]) => ({
     id: supplier.id,
     name: supplier.name,
     whatsappNumber: supplier.whatsappNumber ?? null,
