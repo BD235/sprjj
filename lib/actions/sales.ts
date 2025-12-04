@@ -1,6 +1,4 @@
 "use server";
-
-import { Decimal } from "@prisma/client/runtime/library";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -23,7 +21,7 @@ const ManualStockOutSchema = z.object({
   menuId: z.string().trim().optional(),
   quantity: z.coerce.number().int().positive("Jumlah harus lebih dari 0"),
   transactionDate: z
-    .coerce.date({ invalid_type_error: "Tanggal wajib diisi" })
+    .coerce.date()
     .refine((date) => !Number.isNaN(date.getTime()), "Tanggal tidak valid"),
   note: z.string().optional(),
 });
