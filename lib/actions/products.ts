@@ -3,17 +3,18 @@
 
 import { redirect } from "next/navigation";
 import { Decimal } from "@prisma/client/runtime/library";
-import { MeasurementUnit } from "@prisma/client";
 import { ensureUserInDB, getCurrentUser } from "../auth";
 import { requireAnyRole } from "../role-guard";
 import { prisma } from "../prisma";
 import { getClaimedRoles, getIsOwner } from "@/lib/role";
 import { z } from "zod";
 
+const measurementUnitValues = ["GRAM", "KG", "ML", "PCS"] as const;
+
 const ProductSchema = z.object({
   stockName: z.string().min(1, "Stock name is required"),
   category: z.string().min(1, "Category is required"),
-  unit: z.nativeEnum(MeasurementUnit, {
+  unit: z.enum(measurementUnitValues, {
     errorMap: () => ({ message: "Invalid unit value" }),
   }),
   price: z.coerce.number().int().nonnegative("Price must be non-negative"),
