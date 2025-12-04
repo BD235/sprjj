@@ -219,8 +219,8 @@ export async function uploadSalesCsv(
       return { status: "error", message: "Format file harus CSV (.csv)" };
     }
 
-    const generalNote =
-      typeof formData.get("note") === "string" ? formData.get("note")?.trim() ?? "" : "";
+    const noteEntry = formData.get("note");
+    const generalNote = typeof noteEntry === "string" ? noteEntry.trim() : "";
     const csvText = await fileEntry.text();
     const parsedRows = parseCsvContent(csvText);
 
