@@ -121,7 +121,6 @@ export async function createProduct(formData: FormData) {
     redirect(destination);
   }
 
-  return { success: true };
 }
 
 export async function updateProduct(formData: FormData) {
@@ -198,5 +197,4 @@ export async function updateProduct(formData: FormData) {
     redirect(destination);
   }
 
-  return { success: true };
 }
