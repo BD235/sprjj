@@ -240,7 +240,7 @@ export async function uploadSalesCsv(
       ),
     );
 
-    const menuFilters: Prisma.MenuWhereInput[] = [];
+    const menuFilters = [] as { code?: { in: string[] }; name?: { in: string[] } }[];
     if (codeIdentifiers.length) {
       menuFilters.push({ code: { in: codeIdentifiers } });
     }
