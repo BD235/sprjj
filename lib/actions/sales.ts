@@ -267,7 +267,7 @@ export async function uploadSalesCsv(
     type MenuEntry = (typeof menus)[number];
     const menuByCode = new Map<string, MenuEntry>();
     const menuByName = new Map<string, MenuEntry>();
-    menus.forEach((menu) => {
+    menus.forEach((menu: MenuEntry) => {
       menuByCode.set(menu.code.toLowerCase(), menu);
       menuByName.set(menu.name.toLowerCase(), menu);
     });
