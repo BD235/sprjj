@@ -1,28 +1,64 @@
+// prisma/seed.ts
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+
 const prisma = new PrismaClient();
 
-async function main() {
-  const demoUserId = "133767f0-768d-4338-a612-50c8dc722b84";
+async function ensureBaseRoles() {
+  const roles = ["OWNER", "PEGAWAI"] as const;
+  for (const role of roles) {
+    await prisma.role.upsert({
+      where: { name: role },
+      create: { name: role, status: "active" },
+      update: {},
+    });
+  }
+  console.log("✅ Roles siap: OWNER, PEGAWAI");
+}
 
-  // Create sample products
-  await prisma.product.createMany({
-    data: Array.from({ length: 25 }).map((_, i) => ({
-      userId: demoUserId,
-      name: `Product ${i + 1}`,
-      price: (Math.random() * 90 + 10).toFixed(2),
-      quantity: Math.floor(Math.random() * 20),
-      lowStockAt: 5,
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * (i * 5)),
-    })),
+async function ensureOwnerAccount() {
+  const email = process.env.SEED_OWNER_EMAIL ?? "owner@example.com";
+  const password = process.env.SEED_OWNER_PASSWORD ?? "owner12345";
+  const name = process.env.SEED_OWNER_NAME ?? "Owner";
+  const username =
+    process.env.SEED_OWNER_USERNAME ?? email.split("@")[0]?.replace(/\W+/g, "") ?? "owner";
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  const owner = await prisma.user.upsert({
+    where: { email },
+    create: {
+      email,
+      username,
+      name,
+      password: hashedPassword,
+    },
+    update: {},
+    select: { id: true },
   });
 
-  console.log("Seed data created successfully!");
-  console.log(`Created 25 products for user ID: ${demoUserId}`);
+  const ownerRole = await prisma.role.findUnique({ where: { name: "OWNER" } });
+  if (!ownerRole) {
+    throw new Error("Role OWNER belum tersedia.");
+  }
+
+  await prisma.userRole.upsert({
+    where: { userId_roleId: { userId: owner.id, roleId: ownerRole.id } },
+    create: { userId: owner.id, roleId: ownerRole.id },
+    update: {},
+  });
+
+  console.log(`✅ Owner default siap (${email}). Pastikan ganti password setelah deploy.`);
+}
+
+async function main() {
+  await ensureBaseRoles();
+  await ensureOwnerAccount();
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("❌ Seed gagal:", e);
     process.exit(1);
   })
   .finally(async () => {
