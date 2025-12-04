@@ -204,7 +204,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
               >
                 <option value="">No supplier</option>
-                {suppliers.map((supplier) => (
+                {suppliers.map((supplier: SupplierOption) => (
                   <option key={supplier.id} value={supplier.id}>
                     {supplier.name}
                   </option>
