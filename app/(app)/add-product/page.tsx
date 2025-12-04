@@ -8,6 +8,7 @@ import { getClaimedRoles, getIsOwner } from "@/lib/role";
 import Topbar from "@/components/topbar";
 import Link from "next/link";
 import PriceInput from "@/components/price-input";
+import type { SupplierOption } from "@/types/supplier";
 
 const CATEGORY_OPTIONS = [
   "Daging Segar & Ikan",
@@ -33,7 +34,7 @@ export default async function AddProductPage() {
   const claimedRoles = getClaimedRoles(user);
   const userRecordId = user.claims?.userIdDb ?? user.id;
   const isOwner = await getIsOwner(user.id, user.email, claimedRoles, userRecordId);
-  const suppliers = await prisma.supplier.findMany({
+  const suppliers: SupplierOption[] = await prisma.supplier.findMany({
     where: { userId: dbUserId },
     orderBy: { name: "asc" },
     select: { id: true, name: true },

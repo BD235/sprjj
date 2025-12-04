@@ -5,6 +5,7 @@ import { ensureUserInDB, getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { requireAnyRole } from "@/lib/role-guard";
 import Link from "next/link";
+import type { SupplierOption } from "@/types/supplier";
 
 const PAYMENT_METHOD_OPTIONS = [
   { value: "CASH", label: "Cash" },
@@ -31,16 +32,18 @@ export default async function NewTransactionPage() {
   const user = await getCurrentUser();
   const dbUserId = await ensureUserInDB();
 
+  const supplierOptionsPromise = prisma.supplier.findMany({
+    where: { userId: dbUserId },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  }) as Promise<SupplierOption[]>;
+
   const [products, suppliers] = await Promise.all([
     prisma.product.findMany({
       where: { OR: [{ userId: user.id }, { userId: dbUserId }] },
       orderBy: { stockName: "asc" },
     }),
-    prisma.supplier.findMany({
-      where: { userId: dbUserId },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true },
-    }),
+    supplierOptionsPromise,
   ]);
 
   const hasProducts = products.length > 0;

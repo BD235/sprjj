@@ -3,6 +3,7 @@ import { ensureUserInDB, getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { requireAnyRole } from "@/lib/role-guard";
 import { getClaimedRoles, getIsOwner } from "@/lib/role";
+import type { SupplierOption } from "@/types/supplier";
 import TransactionsClient from "./transactions-client";
 
 export default async function TransactionsPage() {
@@ -17,6 +18,12 @@ export default async function TransactionsPage() {
   const userRecordId = user.claims?.userIdDb ?? user.id;
   const isOwner = await getIsOwner(user.id, user.email, claimedRoles, userRecordId);
 
+  const supplierOptionsPromise = prisma.supplier.findMany({
+    where: { userId: dbUserId },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  }) as Promise<SupplierOption[]>;
+
   const [transactions, products, suppliers] = await Promise.all([
     prisma.stockInTransaction.findMany({
       where: { userId: dbUserId },
@@ -30,11 +37,7 @@ export default async function TransactionsPage() {
       where: { OR: [{ userId: user.id }, { userId: dbUserId }] },
       orderBy: { stockName: "asc" },
     }),
-    prisma.supplier.findMany({
-      where: { userId: dbUserId },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true },
-    }),
+    supplierOptionsPromise,
   ]);
 
   const items = transactions.map((transaction) => ({

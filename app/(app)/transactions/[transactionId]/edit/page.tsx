@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAnyRole } from "@/lib/role-guard";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { SupplierOption } from "@/types/supplier";
 
 const PAYMENT_METHOD_OPTIONS = [
   { value: "CASH", label: "Cash" },
@@ -50,16 +51,18 @@ export default async function EditTransactionPage({ params }: EditTransactionPag
     notFound();
   }
 
+  const supplierOptionsPromise = prisma.supplier.findMany({
+    where: { userId: dbUserId },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  }) as Promise<SupplierOption[]>;
+
   const [products, suppliers] = await Promise.all([
     prisma.product.findMany({
       where: { OR: [{ userId: user.id }, { userId: dbUserId }] },
       orderBy: { stockName: "asc" },
     }),
-    prisma.supplier.findMany({
-      where: { userId: dbUserId },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true },
-    }),
+    supplierOptionsPromise,
   ]);
 
   const defaultDate = toDatetimeLocal(transaction.transactionDate);

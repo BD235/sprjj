@@ -7,6 +7,7 @@ import { ensureUserInDB, getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { requireAnyRole } from "@/lib/role-guard";
 import { getClaimedRoles, getIsOwner } from "@/lib/role";
+import type { SupplierOption } from "@/types/supplier";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -49,7 +50,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
       where: { userId: dbUserId },
       orderBy: { name: "asc" },
       select: { id: true, name: true },
-    }),
+    }) as Promise<SupplierOption[]>,
   ]);
 
   if (!product) {
