@@ -300,7 +300,7 @@ export async function uploadSalesCsv(
         throw new Error(`Menu "${menu.name}" belum memiliki resep (baris ${row.line})`);
       }
 
-      menu.recipes.forEach((recipe) => {
+      menu.recipes.forEach((recipe: (typeof menu.recipes)[number]) => {
         const perPortion = Number(recipe.qtyPerPortion);
         if (!Number.isFinite(perPortion) || perPortion <= 0) {
           return;
