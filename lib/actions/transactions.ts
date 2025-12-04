@@ -166,7 +166,6 @@ export async function createTransaction(formData: FormData) {
     redirect(destination);
   }
 
-  return { success: true };
 }
 
 export async function updateTransaction(formData: FormData) {
@@ -248,7 +247,6 @@ export async function updateTransaction(formData: FormData) {
     redirect(destination);
   }
 
-  return { success: true };
 }
 
 export async function deleteTransaction(formData: FormData) {
