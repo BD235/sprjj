@@ -14,9 +14,7 @@ const measurementUnitValues = ["GRAM", "KG", "ML", "PCS"] as const;
 const ProductSchema = z.object({
   stockName: z.string().min(1, "Stock name is required"),
   category: z.string().min(1, "Category is required"),
-  unit: z.enum(measurementUnitValues, {
-    errorMap: () => ({ message: "Invalid unit value" }),
-  }),
+  unit: z.enum(measurementUnitValues),
   price: z.coerce.number().int().nonnegative("Price must be non-negative"),
   quantity: z.coerce.number().int().min(0, "Quantity must be non-negative"),
   lowStock: z.coerce.number().int().min(0, "Low stock must be non-negative"),
