@@ -14,9 +14,8 @@ export async function GET() {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
     if (error instanceof Error) {
-      const status = typeof (error as { status?: unknown }).status === "number"
-        ? (error as { status: number }).status
-        : undefined;
+      const withStatus = error as { status?: unknown };
+      const status = typeof withStatus.status === "number" ? withStatus.status : undefined;
       if (status === 401) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
