@@ -68,7 +68,10 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
 
   const matchedSupplierId =
     product.supplierId ??
-    suppliers.find((supplier) => supplier.name.toLowerCase() === (product.supplier ?? "").toLowerCase())?.id ??
+    suppliers.find(
+      (supplier: SupplierOption) =>
+        supplier.name.toLowerCase() === (product.supplier ?? "").toLowerCase(),
+    )?.id ??
     "";
 
   return (
