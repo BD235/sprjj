@@ -264,8 +264,12 @@ export async function uploadSalesCsv(
       throw new Error("Menu pada CSV tidak ditemukan di database");
     }
 
-    const menuByCode = new Map(menus.map((menu) => [menu.code.toLowerCase(), menu]));
-    const menuByName = new Map(menus.map((menu) => [menu.name.toLowerCase(), menu]));
+    const menuByCode = new Map(
+      menus.map((menu) => [menu.code.toLowerCase(), menu] as const),
+    );
+    const menuByName = new Map(
+      menus.map((menu) => [menu.name.toLowerCase(), menu] as const),
+    );
 
     // 2. Derive all transaction entries and aggregate product usage
     type DerivedEntry = {
