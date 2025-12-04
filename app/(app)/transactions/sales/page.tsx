@@ -64,7 +64,7 @@ export default async function SalesTransactionsPage() {
     }[];
   }>();
 
-  stockOutLogs.forEach((log) => {
+  stockOutLogs.forEach((log: (typeof stockOutLogs)[number]) => {
     const key = `${log.transactionName}-${log.menuId ?? "none"}-${log.transactionDate.toISOString()}`;
     const entry = {
       id: log.id,
@@ -96,13 +96,13 @@ export default async function SalesTransactionsPage() {
     new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime(),
   );
 
-  const menuOptions = menus.map((menu) => ({
+  const menuOptions = menus.map((menu: (typeof menus)[number]) => ({
     id: menu.id,
     label: menu.name,
     helper: menu.code,
   }));
 
-  const productOptions = products.map((product) => ({
+  const productOptions = products.map((product: (typeof products)[number]) => ({
     id: product.id,
     label: product.stockName,
     helper: unitLabels[product.unit] ?? product.unit.toLowerCase(),

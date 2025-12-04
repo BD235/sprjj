@@ -40,7 +40,7 @@ export default async function TransactionsPage() {
     supplierOptionsPromise,
   ]);
 
-  const items = transactions.map((transaction) => ({
+  const items = transactions.map((transaction: (typeof transactions)[number]) => ({
     id: transaction.id,
     name: transaction.transactionName,
     transactionDate: transaction.transactionDate.toISOString(),
@@ -54,12 +54,12 @@ export default async function TransactionsPage() {
     productName: transaction.product.stockName,
   }));
 
-  const productOptions = products.map((product) => ({
+  const productOptions = products.map((product: (typeof products)[number]) => ({
     id: product.id,
     name: product.stockName,
   }));
 
-  const supplierOptions = suppliers.map((supplier) => ({
+  const supplierOptions = suppliers.map((supplier: SupplierOption) => ({
     id: supplier.id,
     name: supplier.name,
   }));

@@ -33,7 +33,7 @@ function mapStatusToSeverity(status: StockStatus): NotificationSeverityLevel {
 
 function mapProductsToAlerts(products: ProductRecord[]) {
   return products
-    .map((product) => {
+    .map((product: ProductRecord) => {
       const status = deriveStatus(product.quantity, product.lowStock);
       if (!status) return null;
 
@@ -57,7 +57,7 @@ function mapRecords(records: NotificationMetadata[]) {
 
 function mapAlertsByMessage(alerts: ReturnType<typeof mapProductsToAlerts>) {
   const map = new Map<string, (typeof alerts)[number]>();
-  alerts.forEach((alert) => {
+  alerts.forEach((alert: (typeof alerts)[number]) => {
     if (!map.has(alert.message)) {
       map.set(alert.message, alert);
     }
@@ -96,7 +96,7 @@ export async function getLowStockNotifications(userId: string) {
   const metaByMessage = mapRecords([...existingRecords, ...newlyCreated]);
 
   return notifications
-    .map((notification) => {
+    .map((notification: (typeof notifications)[number]) => {
       const meta = metaByMessage.get(notification.message);
       return {
         ...notification,

@@ -30,7 +30,7 @@ export default async function InventoryPage() {
     }),
   ]);
 
-  const items = products.map((product) => ({
+  const items = products.map((product: (typeof products)[number]) => ({
     id: product.id,
     stockName: product.stockName,
     category: product.category ?? null,

@@ -103,14 +103,14 @@ export default async function DashboardPage() {
   const lowStockPercentage = pct(lowStockCount);
   const outOfStockPercentage = pct(outOfStockCount);
 
-  const stockTableItems = [...allProducts]
-    .map((product) => {
-      const quantity = Number(product.quantity);
-      const threshold = Number(product.lowStock ?? 0);
-      const urgencyScore =
-        threshold > 0 ? Math.max(0, 1 - quantity / threshold) : quantity <= 0 ? 1 : 0;
-      return { ...product, urgencyScore };
-    })
+  const scoredProducts = [...allProducts].map((product: (typeof allProducts)[number]) => {
+    const quantity = Number(product.quantity);
+    const threshold = Number(product.lowStock ?? 0);
+    const urgencyScore = threshold > 0 ? Math.max(0, 1 - quantity / threshold) : quantity <= 0 ? 1 : 0;
+    return { ...product, urgencyScore };
+  });
+
+  const stockTableItems = scoredProducts
     .sort((a, b) => {
       if (b.urgencyScore !== a.urgencyScore) return b.urgencyScore - a.urgencyScore;
       if (a.lowStock === null) return 1;
@@ -118,7 +118,7 @@ export default async function DashboardPage() {
       if (a.lowStock !== b.lowStock) return Number(a.lowStock) - Number(b.lowStock);
       return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
     })
-    .map((product) => ({
+    .map((product: (typeof scoredProducts)[number]) => ({
       id: product.id,
       stockName: product.stockName,
       lowStock: Number(product.lowStock ?? 0),
