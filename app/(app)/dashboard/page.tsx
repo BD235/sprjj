@@ -76,7 +76,7 @@ export default async function DashboardPage() {
     getStockActivityData(dbUserId),
   ]);
 
-  const totalValue = allProducts.reduce((sum, product) => {
+  const totalValue = allProducts.reduce((sum: number, product) => {
     const price = Number(product.price);
     const quantity = Number(product.quantity);
     if (!Number.isFinite(price) || !Number.isFinite(quantity)) return sum;
