@@ -27,7 +27,7 @@ const TransactionSchema = z.object({
   quantity: z.coerce.number().int().min(0, "Quantity must be non-negative"),
   totalAmount: z.coerce.number().nonnegative("Total price must be non-negative"),
   transactionDate: z
-    .coerce.date({ invalid_type_error: "Transaction date is required" })
+    .coerce.date()
     .refine((date) => !Number.isNaN(date.getTime()), "Transaction date is required"),
   paymentMethod: z.enum(PaymentMethodEnum, {
     error: "Invalid payment method",
