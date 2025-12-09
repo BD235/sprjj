@@ -446,7 +446,7 @@ export async function createManualStockOutEntry(formData: FormData) {
     }
   }
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: TransactionClient) => {
     const decremented = await tx.product.updateMany({
       where: { id: parsed.data.productId, userId: dbUserId },
       data: {
@@ -525,7 +525,7 @@ export async function updateManualStockOutEntry(formData: FormData) {
     }
   }
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: TransactionClient) => {
     const restored = await tx.product.updateMany({
       where: { id: existing.productId, userId: dbUserId },
       data: {
