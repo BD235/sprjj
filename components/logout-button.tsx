@@ -2,9 +2,19 @@
 
 import clsx from "clsx";
 import { signOut } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Modal } from "@/components/ui/modal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type LogoutButtonProps = {
   className?: string;
@@ -29,23 +39,6 @@ export default function LogoutButton({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (!isDialogOpen) return;
-    const handleKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !isLoading) {
-        setIsDialogOpen(false);
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [isDialogOpen, isLoading]);
-
-  const openDialog = () => {
-    if (isLoading) return;
-    setIsDialogOpen(true);
-    onDialogOpen?.();
-  };
-
   const handleLogout = () => {
     if (isLoading) return;
     setIsLoading(true);
@@ -61,24 +54,36 @@ export default function LogoutButton({
     setIsDialogOpen(false);
   };
 
-  return (
-    <>
-      <button
-        type="button"
-        onClick={openDialog}
-        className={clsx(variantClassNames[variant], className)}
-        disabled={isLoading}
-      >
-        {isLoading ? "Logging out..." : "Logout"}
-      </button>
+  const handleOpenChange = (open: boolean) => {
+    if (isLoading) return;
+    setIsDialogOpen(open);
+    if (open) {
+      onDialogOpen?.();
+    }
+  };
 
-      <Modal
-        open={isDialogOpen}
-        onClose={handleCancel}
-        title="Keluar dari aplikasi?"
-        description="Anda akan keluar dari sistem POS."
-        footer={
-          <>
+  return (
+    <AlertDialog open={isDialogOpen} onOpenChange={handleOpenChange}>
+      <AlertDialogTrigger asChild>
+        <button
+          type="button"
+          className={clsx(variantClassNames[variant], className)}
+          disabled={isLoading}
+        >
+          {isLoading ? "Logging out..." : "Logout"}
+        </button>
+      </AlertDialogTrigger>
+
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Keluar dari aplikasi?</AlertDialogTitle>
+          <AlertDialogDescription>Anda akan keluar dari sistem POS.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <p className="text-sm text-gray-600">
+          Pastikan semua data sudah disimpan sebelum keluar dari aplikasi.
+        </p>
+        <AlertDialogFooter>
+          <AlertDialogCancel asChild>
             <Button
               variant="secondary"
               size="sm"
@@ -87,6 +92,8 @@ export default function LogoutButton({
             >
               Batalkan
             </Button>
+          </AlertDialogCancel>
+          <AlertDialogAction asChild>
             <Button
               variant="primary"
               size="sm"
@@ -96,13 +103,9 @@ export default function LogoutButton({
             >
               Logout
             </Button>
-          </>
-        }
-      >
-        <p className="text-sm text-gray-600">
-          Pastikan semua data sudah disimpan sebelum keluar dari aplikasi.
-        </p>
-      </Modal>
-    </>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

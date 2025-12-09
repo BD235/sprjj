@@ -7,11 +7,11 @@ import { Spinner } from "./spinner";
 
 const variantClasses = {
   primary:
-    "bg-[#2563eb] text-white shadow hover:bg-[#1d4fd8] focus-visible:ring-[#2563eb]/40 dark:bg-[#38BDF8] dark:text-[#0F172A] dark:hover:bg-[#4cc9ff] dark:focus-visible:ring-[#38BDF8]/50",
+    "bg-[#2563eb] text-white shadow hover:bg-[#1d4fd8] focus-visible:ring-[#2563eb]/40",
   secondary:
-    "bg-white text-gray-900 ring-1 ring-gray-300 shadow-sm hover:bg-gray-50 focus-visible:ring-gray-400/60 dark:bg-[#1E293B] dark:text-[#F1F5F9] dark:ring-[#38BDF8]/30 dark:hover:bg-[#25344d] dark:focus-visible:ring-[#38BDF8]/40",
+    "bg-white text-gray-900 ring-1 ring-gray-300 shadow-sm hover:bg-gray-50 focus-visible:ring-gray-400/60",
   ghost:
-    "bg-transparent text-gray-700 hover:bg-gray-100 focus-visible:ring-gray-300/60 dark:text-[#F1F5F9] dark:hover:bg-[#25344d] dark:focus-visible:ring-[#38BDF8]/25",
+    "bg-transparent text-gray-700 hover:bg-gray-100 focus-visible:ring-gray-300/60",
 };
 
 const sizeClasses = {

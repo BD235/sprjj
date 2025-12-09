@@ -7,6 +7,7 @@ import { createProduct, deleteProduct, updateProduct } from "@/lib/actions/produ
 import PriceInput from "@/components/price-input";
 import { Modal } from "@/components/ui/modal";
 import { CardFade } from "@/components/motion/card-fade";
+import { SearchInput } from "@/components/search-input";
 
 interface InventoryItem {
   id: string;
@@ -37,14 +38,12 @@ interface InventoryClientProps {
 
 const unitLabels: Record<string, string> = {
   GRAM: "gram",
-  KG: "kg",
   ML: "ml",
   PCS: "pcs",
 };
 
 const unitDenominators: Record<string, string> = {
   GRAM: "1000 gram",
-  KG: "1 kg",
   ML: "1000 ml",
   PCS: "1 pcs",
 };
@@ -60,10 +59,14 @@ const CATEGORY_OPTIONS = [
 
 const UNIT_OPTIONS = [
   { value: "GRAM", label: "Gram (g)" },
-  { value: "KG", label: "Kilogram (kg)" },
   { value: "ML", label: "Mililiter (ml)" },
   { value: "PCS", label: "Pieces (pcs)" },
 ] as const;
+
+const ACTION_BUTTON_CLASS =
+  "inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-purple-500 hover:text-purple-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/30 sm:h-9 sm:w-9";
+const ACTION_BUTTON_DANGER_CLASS =
+  "inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-red-200 bg-white text-red-500 shadow-sm transition hover:border-red-400 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/30 sm:h-9 sm:w-9";
 
 function formatUnit(unit: string) {
   return unitLabels[unit as keyof typeof unitLabels] ?? unit.toLowerCase();
@@ -120,6 +123,8 @@ export default function InventoryClient({
   const [itemToEdit, setItemToEdit] = useState<InventoryItem | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
   const [isUpdating, startUpdateTransition] = useTransition();
+  const [addUnit, setAddUnit] = useState<InventoryItem["unit"]>("GRAM");
+  const [editUnit, setEditUnit] = useState<InventoryItem["unit"] | null>(null);
 
   const filteredItems = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -141,6 +146,7 @@ export default function InventoryClient({
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize));
   const currentIndex = (currentPage - 1) * pageSize;
   const paginatedItems = filteredItems.slice(currentIndex, currentIndex + pageSize);
+  const currentEditUnit = itemToEdit ? editUnit ?? itemToEdit.unit : "GRAM";
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -184,12 +190,14 @@ export default function InventoryClient({
   const openAddDialog = () => {
     setIsAddDialogOpen(true);
     setAddError(null);
+    setAddUnit("GRAM");
   };
 
   const closeAddDialog = () => {
     if (isCreating) return;
     setIsAddDialogOpen(false);
     setAddError(null);
+    setAddUnit("GRAM");
   };
 
   const handleAddStockSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -222,6 +230,7 @@ export default function InventoryClient({
 
   const openEditModal = (item: InventoryItem) => {
     setItemToEdit(item);
+    setEditUnit(item.unit);
     setEditError(null);
   };
 
@@ -229,6 +238,12 @@ export default function InventoryClient({
     if (isUpdating) return;
     setItemToEdit(null);
     setEditError(null);
+  };
+
+  const priceHint = (unit: string) => {
+    if (unit === "GRAM") return "Harga dihitung per 1000 gram (1 kg).";
+    if (unit === "ML") return "Harga dihitung per 1000 ml (1 liter).";
+    return "Harga dihitung per 1 pcs.";
   };
 
   const handleEditSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -254,36 +269,30 @@ export default function InventoryClient({
   };
 
   return (
-    <div className="space-y-6 text-gray-900 dark:text-gray-100">
-      <CardFade className="border border-gray-200 bg-white px-6 py-5 shadow-sm dark:border-[#38BDF8]/20 dark:bg-[#1E293B]">
-        <div className="flex flex-wrap items-center gap-3">
-          <input
+    <div className="space-y-6 text-gray-900">
+      <CardFade className="border border-gray-200 bg-white px-6 py-5 shadow-sm">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <SearchInput
             value={searchTerm}
             onChange={handleSearchChange}
-            placeholder="Search stock..."
-            className="flex-1 rounded-xl border border-gray-200/80 bg-white px-4 py-3 text-sm text-gray-700 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#1E293B] dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:ring-purple-500/30"
+            placeholder="Cari produk..."
+            aria-label="Cari produk"
+            wrapperClassName="w-full flex-1"
           />
           <button
             type="button"
-            onClick={() => goToPage(1)}
-            className="rounded-xl bg-purple-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-purple-700 dark:shadow-purple-900/40"
-          >
-            Search
-          </button>
-          <button
-            type="button"
             onClick={openAddDialog}
-            className="rounded-xl bg-purple-100 px-6 py-3 text-sm font-semibold text-purple-700 shadow hover:bg-purple-200 dark:bg-purple-500/20 dark:text-purple-100 dark:hover:bg-purple-500/30"
+            className="w-full rounded-xl bg-purple-100 px-6 py-3 text-sm font-semibold text-purple-700 shadow hover:bg-purple-200 sm:w-auto"
           >
             + Add stock
           </button>
         </div>
       </CardFade>
 
-      <CardFade className="overflow-hidden border border-gray-200 bg-white p-0 shadow-sm dark:border-[#38BDF8]/20 dark:bg-[#1E293B]">
+      <CardFade className="overflow-hidden border border-gray-200 bg-white p-0 shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-[720px] w-full text-sm text-gray-700 dark:text-gray-200">
-            <thead className="bg-gray-200 text-gray-700 dark:bg-white/5 dark:text-gray-300">
+          <table className="min-w-[720px] w-full text-sm text-gray-700">
+            <thead className="bg-gray-200 text-gray-700">
               <tr>
                 {["Stock Name", "Price", "Quantity", "Low Stock", "Supplier", "Actions"].map((heading) => (
                   <th key={heading} className="px-6 py-3 text-left font-semibold">
@@ -293,48 +302,50 @@ export default function InventoryClient({
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-100 bg-white dark:divide-white/5 dark:bg-[#1E293B]">
+            <tbody className="divide-y divide-gray-100 bg-white">
               {paginatedItems.map((item) => (
-                <tr key={item.id} className="transition hover:bg-purple-50/40 dark:hover:bg-white/5">
-                  <td className="px-6 py-4 text-gray-700 dark:text-gray-100">{item.stockName}</td>
-                  <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                <tr key={item.id} className="transition hover:bg-purple-50/40">
+                  <td className="px-6 py-4 text-gray-700">{item.stockName}</td>
+                  <td className="px-6 py-4 text-gray-800">
                     {formatPrice(item.price)}
-                    <span className="ml-1 text-xs uppercase text-gray-500 dark:text-gray-400">
+                    <span className="ml-1 text-xs uppercase text-gray-500">
                       / {formatUnitDenominator(item.unit)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-800 dark:text-gray-100">
+                  <td className="px-6 py-4 text-gray-800">
                     {item.quantity ?? "-"}
                     {item.quantity !== null && item.quantity !== undefined && (
-                      <span className="ml-1 text-xs uppercase text-gray-500 dark:text-gray-400">
+                      <span className="ml-1 text-xs uppercase text-gray-500">
                         {formatUnit(item.unit)}
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-gray-600 dark:text-gray-200">
+                  <td className="px-6 py-4 text-gray-600">
                     {item.lowStock ?? "-"}
                     {item.lowStock !== null && item.lowStock !== undefined && (
-                      <span className="ml-1 text-xs uppercase text-gray-500 dark:text-gray-400">
+                      <span className="ml-1 text-xs uppercase text-gray-500">
                         {formatUnit(item.unit)}
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-gray-700 dark:text-gray-100">{item.supplier ?? "-"}</td>
+                  <td className="px-6 py-4 text-gray-700">{item.supplier ?? "-"}</td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
                       <button
                         type="button"
                         onClick={() => openEditModal(item)}
-                        className="rounded-full p-2 text-gray-500 transition hover:bg-purple-100 hover:text-purple-700 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
+                        className={ACTION_BUTTON_CLASS}
                         aria-label={`Edit ${item.stockName}`}
+                        title="Edit"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       {canDelete && (
                         <button
                           type="button"
-                          className="rounded-full p-2 text-red-500 transition hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-300"
+                          className={ACTION_BUTTON_DANGER_CLASS}
                           aria-label={`Delete ${item.stockName}`}
+                          title="Delete"
                           onClick={() => openDeleteModal(item)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -343,8 +354,9 @@ export default function InventoryClient({
                       <button
                         type="button"
                         onClick={() => openDetailModal(item)}
-                        className="rounded-full p-2 text-gray-500 transition hover:bg-purple-100 hover:text-purple-700 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
+                        className={ACTION_BUTTON_CLASS}
                         aria-label={`View ${item.stockName}`}
+                        title="Detail"
                       >
                         <Eye className="h-4 w-4" />
                       </button>
@@ -354,7 +366,7 @@ export default function InventoryClient({
               ))}
               {paginatedItems.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-gray-400 dark:text-gray-500">
+                  <td colSpan={6} className="px-6 py-10 text-center text-gray-400">
                     No products found.
                   </td>
                 </tr>
@@ -370,9 +382,9 @@ export default function InventoryClient({
             role="alertdialog"
             aria-modal="true"
             aria-labelledby="delete-confirmation-title"
-            className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-xl dark:bg-[#1E293B] dark:text-gray-100"
+            className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-xl"
           >
-            <h2 id="delete-confirmation-title" className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h2 id="delete-confirmation-title" className="text-lg font-semibold text-gray-900">
               Are you sure to delete?
             </h2>
             {deleteError && (
@@ -393,7 +405,7 @@ export default function InventoryClient({
                 type="button"
                 onClick={closeDeleteModal}
                 disabled={isDeleting}
-                className="min-w-[6rem] rounded-lg bg-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 shadow hover:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white/20"
+                className="min-w-[6rem] rounded-lg bg-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 shadow hover:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 Cancel
               </button>
@@ -412,7 +424,7 @@ export default function InventoryClient({
             <button
               type="button"
               onClick={closeDetailModal}
-              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/20 dark:text-gray-200 dark:hover:bg-white/10"
+              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Close
             </button>
@@ -420,58 +432,59 @@ export default function InventoryClient({
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Category
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">{detailItem.category ?? "-"}</p>
+              <p className="mt-1 text-sm text-gray-900">{detailItem.category ?? "-"}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Unit
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">{formatUnit(detailItem.unit)}</p>
+              <p className="mt-1 text-sm text-gray-900">{formatUnit(detailItem.unit)}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Quantity
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+              <p className="mt-1 text-sm text-gray-900">
                 {detailItem.quantity} {formatUnit(detailItem.unit)}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Price
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">{formatPrice(detailItem.priceValue)}</p>
+              <p className="mt-1 text-sm text-gray-900">{formatPrice(detailItem.priceValue)}</p>
+              <p className="text-xs text-gray-500">{priceHint(detailItem.unit)}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Low stock
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+              <p className="mt-1 text-sm text-gray-900">
                 {detailItem.lowStock ?? "-"}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Supplier
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">{detailItem.supplier ?? "-"}</p>
+              <p className="mt-1 text-sm text-gray-900">{detailItem.supplier ?? "-"}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Added on
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+              <p className="mt-1 text-sm text-gray-900">
                 {formatDate(detailItem.createdAt)} • {formatTime(detailItem.createdAt)}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Last updated
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+              <p className="mt-1 text-sm text-gray-900">
                 {formatDate(detailItem.updatedAt)} • {formatTime(detailItem.updatedAt)}
               </p>
             </div>
@@ -498,7 +511,7 @@ export default function InventoryClient({
                 required
                 defaultValue={itemToEdit.stockName}
                 disabled={isUpdating}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#0F172A] dark:text-gray-100"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
               />
             </div>
 
@@ -513,7 +526,7 @@ export default function InventoryClient({
                   required
                   defaultValue={itemToEdit.category ?? ""}
                   disabled={isUpdating}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#0F172A] dark:text-gray-100"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
                 >
                   {CATEGORY_OPTIONS.map((category) => (
                     <option key={category} value={category}>
@@ -530,9 +543,10 @@ export default function InventoryClient({
                   id="edit-unit"
                   name="unit"
                   required
-                  defaultValue={itemToEdit.unit}
+                  value={currentEditUnit}
+                  onChange={(e) => setEditUnit(e.target.value as InventoryItem["unit"])}
                   disabled={isUpdating}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#0F172A] dark:text-gray-100"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
                 >
                   {UNIT_OPTIONS.map((unit) => (
                     <option key={unit.value} value={unit.value}>
@@ -550,29 +564,30 @@ export default function InventoryClient({
                 </label>
                 <input
                   type="number"
-                  id="edit-quantity"
-                  name="quantity"
-                  min={0}
-                  required
-                  defaultValue={itemToEdit.quantity}
-                  disabled={isUpdating}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#0F172A] dark:text-gray-100"
-                />
+                id="edit-quantity"
+                name="quantity"
+                min={0}
+                required
+                defaultValue={itemToEdit.quantity}
+                disabled={isUpdating}
+                className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+              />
               </div>
               <div className="space-y-2">
-                <label htmlFor="edit-price" className="text-sm font-medium">
-                  Price (Rp) *
-                </label>
-                <PriceInput
-                  id="edit-price"
-                  name="price"
-                  min={0}
-                  required
-                  disabled={isUpdating}
-                  defaultValue={itemToEdit.priceValue}
-                  className="w-full"
-                />
-              </div>
+              <label htmlFor="edit-price" className="text-sm font-medium">
+                Price (Rp) *
+              </label>
+              <PriceInput
+                id="edit-price"
+                name="price"
+                min={0}
+                required
+                disabled={isUpdating}
+                defaultValue={itemToEdit.priceValue}
+                className="w-full"
+              />
+              <p className="text-xs text-gray-500">{priceHint(currentEditUnit)}</p>
+            </div>
             </div>
 
             <div className="space-y-2">
@@ -587,7 +602,7 @@ export default function InventoryClient({
                 required
                 defaultValue={itemToEdit.lowStock ?? 0}
                 disabled={isUpdating}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#0F172A] dark:text-gray-100"
+                className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
               />
             </div>
 
@@ -600,7 +615,7 @@ export default function InventoryClient({
                 name="supplierId"
                 defaultValue={itemToEdit.supplierId ?? ""}
                 disabled={isUpdating}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#0F172A] dark:text-gray-100"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
               >
                 <option value="">No supplier</option>
                 {suppliers.map((supplier) => (
@@ -622,7 +637,7 @@ export default function InventoryClient({
                 type="button"
                 onClick={closeEditModal}
                 disabled={isUpdating}
-                className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/20 dark:text-gray-200 dark:hover:bg-white/10"
+                className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -646,7 +661,7 @@ export default function InventoryClient({
       >
         <form className="space-y-5" onSubmit={handleAddStockSubmit}>
           <div className="space-y-2">
-            <label htmlFor="stockName" className="text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="stockName" className="text-sm font-medium text-gray-700">
               Stock Name *
             </label>
             <input
@@ -656,7 +671,7 @@ export default function InventoryClient({
               required
               placeholder="Enter stock name"
               disabled={isCreating}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#0F172A] dark:text-gray-100"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
             />
           </div>
 
@@ -671,7 +686,7 @@ export default function InventoryClient({
                 required
                 defaultValue=""
                 disabled={isCreating}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#0F172A] dark:text-gray-100"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
               >
                 <option value="" disabled>
                   Select category
@@ -691,9 +706,10 @@ export default function InventoryClient({
                 id="unit"
                 name="unit"
                 required
-                defaultValue="GRAM"
+                value={addUnit}
+                onChange={(e) => setAddUnit(e.target.value as InventoryItem["unit"])}
                 disabled={isCreating}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#0F172A] dark:text-gray-100"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
               >
                 {UNIT_OPTIONS.map((unit) => (
                   <option key={unit.value} value={unit.value}>
@@ -712,19 +728,20 @@ export default function InventoryClient({
               <input
                 type="number"
                 id="quantity"
-                name="quantity"
-                min={0}
-                required
-                placeholder="0"
-                disabled={isCreating}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#0F172A] dark:text-gray-100"
-              />
+              name="quantity"
+              min={0}
+              required
+              placeholder="0"
+              disabled={isCreating}
+              className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+            />
             </div>
             <div className="space-y-2">
               <label htmlFor="price" className="text-sm font-medium">
                 Price (Rp) *
               </label>
               <PriceInput id="price" name="price" min={0} required disabled={isCreating} className="w-full" />
+              <p className="text-xs text-gray-500">{priceHint(addUnit)}</p>
             </div>
           </div>
 
@@ -740,7 +757,7 @@ export default function InventoryClient({
               required
               placeholder="Minimal stok sebelum peringatan"
               disabled={isCreating}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#0F172A] dark:text-gray-100"
+              className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
             />
           </div>
 
@@ -753,7 +770,7 @@ export default function InventoryClient({
               name="supplierId"
               defaultValue=""
               disabled={isCreating}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:border-[#38BDF8]/20 dark:bg-[#0F172A] dark:text-gray-100"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
             >
               <option value="">No supplier</option>
               {suppliers.map((supplier) => (
@@ -774,7 +791,7 @@ export default function InventoryClient({
               type="button"
               onClick={closeAddDialog}
               disabled={isCreating}
-              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/20 dark:text-gray-200 dark:hover:bg-white/10"
+              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Cancel
             </button>
@@ -794,7 +811,7 @@ export default function InventoryClient({
             type="button"
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage === 1}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#38BDF8]/20 dark:bg-[#1E293B] dark:text-gray-300 dark:hover:bg-white/10"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Prev
           </button>
@@ -807,8 +824,8 @@ export default function InventoryClient({
                 onClick={() => goToPage(page)}
                 className={`rounded-lg px-3 py-2 text-sm transition ${
                   page === currentPage
-                    ? "bg-purple-600 text-white shadow dark:bg-purple-500"
-                    : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 dark:border-[#38BDF8]/20 dark:bg-[#1E293B] dark:text-gray-300 dark:hover:bg-white/10"
+                    ? "bg-purple-600 text-white shadow"
+                    : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-100"
                 }`}
               >
                 {page}
@@ -820,7 +837,7 @@ export default function InventoryClient({
             type="button"
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#38BDF8]/20 dark:bg-[#1E293B] dark:text-gray-300 dark:hover:bg-white/10"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Next
           </button>

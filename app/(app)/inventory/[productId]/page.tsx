@@ -46,6 +46,12 @@ export default async function ViewProductPage({ params }: ViewProductPageProps) 
   });
   const dateAdded = dateFormatter.format(product.createdAt);
   const timeAdded = timeFormatter.format(product.createdAt);
+  const unitPriceHint =
+    product.unit === "GRAM"
+      ? "Harga dihitung per 1000 gram (1 kg)."
+      : product.unit === "ML"
+        ? "Harga dihitung per 1000 ml (1 liter)."
+        : "Harga dihitung per 1 pcs.";
 
   return (
     <>
@@ -93,6 +99,7 @@ export default async function ViewProductPage({ params }: ViewProductPageProps) 
                   value={price}
                   className="w-full rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm text-gray-800 shadow-inner focus:outline-none"
                 />
+                <p className="text-xs text-gray-500">{unitPriceHint}</p>
               </div>
             </div>
 

@@ -8,7 +8,6 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { ModeToggle } from "@/components/mode-toggle";
 import { dispatchSidebarEvent } from "@/lib/sidebar-events";
 import { Modal } from "@/components/ui/modal";
 import { AnimatePresence, motion } from "framer-motion";
@@ -97,7 +96,6 @@ function formatDetailTime(value: string) {
 
 const unitLabels: Record<string, string> = {
   GRAM: "gram",
-  KG: "kg",
   ML: "ml",
   PCS: "pcs",
 };
@@ -213,8 +211,8 @@ function deriveTitle(pathname: string) {
 export default function Topbar({
   title,
   onBellClick,
-  containerClassName="ml-[0rem] mr-0 -mt-4 top-4",
-  barClassName="h-12 mx-0"  // untuk tinggi/gutter/padding bar
+  containerClassName = "ml-[0rem] mr-0 -mt-4 top-4",
+  barClassName = "h-12 mx-0"  // untuk tinggi/gutter/padding bar
 }: {
   title?: string;
   onBellClick?: () => void;
@@ -251,7 +249,7 @@ export default function Topbar({
       }
     };
     window.addEventListener("keydown", handler);
-    refetch().catch(() => {});
+    refetch().catch(() => { });
     return () => window.removeEventListener("keydown", handler);
   }, [isOpen, refetch]);
 
@@ -292,7 +290,7 @@ export default function Topbar({
     setIsOpen((prev) => {
       const next = !prev;
       if (!prev && next) {
-        refetch().catch(() => {});
+        refetch().catch(() => { });
       }
       return next;
     });
@@ -344,7 +342,7 @@ export default function Topbar({
           "mx-0",
           // tinggi default, bisa dioverride via barClassName
           "flex h-15 items-center justify-between",
-          "rounded-2xl bg-white/80 backdrop-blur ring-1 ring-black/5 shadow-lg dark:bg-[#1E293B] dark:ring-[#38BDF8]/25 dark:shadow-black/40",
+          "rounded-2xl bg-white/80 backdrop-blur ring-1 ring-black/5 shadow-lg",
           // padding dalam nyaman
           "px-6 sm:px-8",
           barClassName
@@ -355,23 +353,22 @@ export default function Topbar({
             type="button"
             onClick={handleSidebarToggle}
             aria-label="Toggle sidebar"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/40 dark:text-gray-200 dark:hover:bg-white/10 dark:focus-visible:ring-purple-300/40 lg:hidden"
+            className="-ml-2 inline-flex h-9 w-9 items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/40 lg:hidden"
           >
             <Menu className="h-5 w-5" />
           </button>
-          <h1 className="text-sm font-semibold tracking-tight text-gray-800 dark:text-gray-100 sm:text-base">
+          <h1 className="text-sm font-semibold tracking-tight text-gray-800 sm:text-base">
             {computedTitle}
           </h1>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <ModeToggle />
           <button
             type="button"
             onClick={handleBellClick}
             aria-label="Notifications"
             aria-expanded={isOpen}
-            className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/40 hover:bg-black/5 dark:text-gray-200 dark:hover:bg-white/10 dark:focus:ring-indigo-300/40"
+            className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/40 hover:bg-black/5"
           >
             <Bell className="h-5 w-5" />
             {hasNotifications && (
@@ -380,8 +377,8 @@ export default function Topbar({
           </button>
 
           <div className="hidden sm:flex flex-col items-end leading-tight">
-            <span className="text-xs font-semibold text-gray-800 dark:text-gray-100">{userDisplayName}</span>
-            <span className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            <span className="text-xs font-semibold text-gray-800">{userDisplayName}</span>
+            <span className="text-[11px] uppercase tracking-wide text-gray-500">
               {primaryRole}
             </span>
           </div>
@@ -390,7 +387,7 @@ export default function Topbar({
             <button
               type="button"
               onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-white text-sm font-semibold shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900/40 dark:bg-white/15 dark:text-white dark:hover:bg-white/25 dark:focus:ring-white/30"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-white text-sm font-semibold shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900/40"
               aria-haspopup="menu"
               aria-expanded={isProfileMenuOpen}
               aria-label="Profile menu"
@@ -398,11 +395,11 @@ export default function Topbar({
               {userInitial}
             </button>
             {isProfileMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-gray-100 bg-white p-1 text-sm shadow-xl ring-1 ring-black/5 dark:border-[#38BDF8]/20 dark:bg-[#1E293B] dark:text-gray-100">
+              <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-gray-100 bg-white p-1 text-sm shadow-xl ring-1 ring-black/5">
                 <Link
                   href="/settings"
                   onClick={closeProfileMenu}
-                  className="block w-full rounded-xl px-3 py-2 text-left font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-white/10"
+                  className="block w-full rounded-xl px-3 py-2 text-left font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Pengaturan
                 </Link>
@@ -430,106 +427,97 @@ export default function Topbar({
               onClick={closeDrawer}
             />
             <motion.aside
-              className="flex h-full w-full max-w-xs flex-col bg-white shadow-2xl ring-1 ring-black/10 dark:bg-[#0F172A] dark:ring-[#38BDF8]/20 sm:max-w-sm"
+              className="flex h-full w-full max-w-xs flex-col bg-white shadow-2xl ring-1 ring-black/10 sm:max-w-sm"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 260, damping: 24 }}
             >
-            <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-[#38BDF8]/20">
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={closeDrawer}
-                  aria-label="Close notifications"
-                  className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 text-gray-600 transition hover:bg-gray-200 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white/20"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  refetch().catch(() => {});
-                }}
-                className="text-xs font-medium text-purple-600 hover:text-purple-700 dark:text-purple-300 dark:hover:text-purple-200"
-              >
-                Refresh
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto px-4 py-4">
-              {initialLoading && !errorMessage && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">Loading notifications...</p>
-              )}
-              {!initialLoading && errorMessage && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300">
-                  <p>{errorMessage}</p>
+              <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      refetch().catch(() => {});
-                    }}
-                    className="mt-2 inline-flex items-center text-xs font-medium text-purple-600 hover:text-purple-700 dark:text-purple-300 dark:hover:text-purple-200"
+                    onClick={closeDrawer}
+                    aria-label="Close notifications"
+                    className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 text-gray-600 transition hover:bg-gray-200"
                   >
-                    Try again
+                    <X className="h-4 w-4" />
                   </button>
+                  <span className="text-sm font-semibold text-gray-900">Notifications</span>
                 </div>
-              )}
-              {showEmptyState && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">All stocks look good for now.</p>
-              )}
-              {showList && (
-                <ul className="space-y-3">
-                  {notifications.map((item) => {
-                    const formattedTimestamp = formatTimestamp(item.notifiedAt);
-                    return (
-                      <li
-                        key={item.notificationId ?? `${item.productId}-${item.status}`}
-                        className="rounded-xl border border-gray-200 bg-gray-50 p-3 shadow-sm dark:border-[#38BDF8]/20 dark:bg-[#1E293B]"
-                      >
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.stockName}</p>
-                        <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{item.message}</p>
-                        {formattedTimestamp && (
-                          <p className="mt-2 text-[11px] font-medium text-gray-400 dark:text-gray-500">
-                            {formattedTimestamp}
-                          </p>
-                        )}
-                        <div className="mt-3 flex items-center justify-between">
-                          <span
-                            className={clsx(
-                              "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
-                              item.status === "out" &&
-                                "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-200",
-                              item.status === "critical" &&
-                                "bg-orange-100 text-orange-600 dark:bg-orange-500/20 dark:text-orange-200",
-                              item.status === "warning" &&
-                                "bg-yellow-100 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-200",
-                            )}
-                          >
-                            {item.status === "out"
-                              ? "Out of stock"
-                              : item.status === "critical"
-                                ? "Critical"
-                                : "Low stock"}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              closeDrawer();
-                              void openNotificationDetail(item.productId);
-                            }}
-                            className="rounded-lg bg-purple-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-purple-700"
-                          >
-                            Lihat detail
-                          </button>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    refetch().catch(() => { });
+                  }}
+                  className="text-xs font-medium text-purple-600 hover:text-purple-700"
+                >
+                  Refresh
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto px-4 py-4">
+                {initialLoading && !errorMessage && <p className="text-sm text-gray-500">Loading notifications...</p>}
+                {!initialLoading && errorMessage && (
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+                    <p>{errorMessage}</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        refetch().catch(() => { });
+                      }}
+                      className="mt-2 inline-flex items-center text-xs font-medium text-purple-600 hover:text-purple-700"
+                    >
+                      Try again
+                    </button>
+                  </div>
+                )}
+                {showEmptyState && <p className="text-sm text-gray-500">All stocks look good for now.</p>}
+                {showList && (
+                  <ul className="space-y-3">
+                    {notifications.map((item) => {
+                      const formattedTimestamp = formatTimestamp(item.notifiedAt);
+                      return (
+                        <li
+                          key={item.notificationId ?? `${item.productId}-${item.status}`}
+                          className="rounded-xl border border-gray-200 bg-gray-50 p-3 shadow-sm"
+                        >
+                          <p className="text-sm font-medium text-gray-900">{item.stockName}</p>
+                          <p className="mt-1 text-xs text-gray-600">{item.message}</p>
+                          {formattedTimestamp && (
+                            <p className="mt-2 text-[11px] font-medium text-gray-400">{formattedTimestamp}</p>
+                          )}
+                          <div className="mt-3 flex items-center justify-between">
+                            <span
+                              className={clsx(
+                                "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
+                                item.status === "out" && "bg-red-100 text-red-700",
+                                item.status === "critical" && "bg-orange-100 text-orange-600",
+                                item.status === "warning" && "bg-yellow-100 text-yellow-600",
+                              )}
+                            >
+                              {item.status === "out"
+                                ? "Out of stock"
+                                : item.status === "critical"
+                                  ? "Critical"
+                                  : "Low stock"}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                closeDrawer();
+                                void openNotificationDetail(item.productId);
+                              }}
+                              className="rounded-lg bg-purple-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-purple-700"
+                            >
+                              Lihat detail
+                            </button>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
             </motion.aside>
           </motion.div>
         )}
@@ -544,77 +532,75 @@ export default function Topbar({
           <button
             type="button"
             onClick={closeNotificationDetail}
-            className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-white/20 dark:text-gray-200 dark:hover:bg-white/10"
+            className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             Tutup
           </button>
         }
       >
-        {detailLoading && (
-          <p className="text-sm text-gray-500 dark:text-gray-400">Memuat detail stok...</p>
-        )}
+        {detailLoading && <p className="text-sm text-gray-500">Memuat detail stok...</p>}
         {!detailLoading && detailError && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
             {detailError}
           </div>
         )}
         {!detailLoading && !detailError && detailProduct && (
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Category
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">{detailProduct.category ?? "-"}</p>
+              <p className="mt-1 text-sm text-gray-900">{detailProduct.category ?? "-"}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Unit
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">{formatUnit(detailProduct.unit)}</p>
+              <p className="mt-1 text-sm text-gray-900">{formatUnit(detailProduct.unit)}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Quantity
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+              <p className="mt-1 text-sm text-gray-900">
                 {detailProduct.quantity} {formatUnit(detailProduct.unit)}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Price
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+              <p className="mt-1 text-sm text-gray-900">
                 {formatDetailPrice(detailProduct.priceValue)}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Low Stock Threshold
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+              <p className="mt-1 text-sm text-gray-900">
                 {detailProduct.lowStock ?? "-"}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Supplier
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">{detailProduct.supplier ?? "-"}</p>
+              <p className="mt-1 text-sm text-gray-900">{detailProduct.supplier ?? "-"}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Created at
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+              <p className="mt-1 text-sm text-gray-900">
                 {formatDetailDate(detailProduct.createdAt)} • {formatDetailTime(detailProduct.createdAt)}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Updated at
               </p>
-              <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+              <p className="mt-1 text-sm text-gray-900">
                 {formatDetailDate(detailProduct.updatedAt)} • {formatDetailTime(detailProduct.updatedAt)}
               </p>
             </div>

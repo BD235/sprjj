@@ -7,6 +7,7 @@ import { Modal } from "@/components/ui/modal";
 import UploadSalesForm from "./upload-sales-form";
 import { createManualStockOutEntry } from "@/lib/actions/sales";
 import { CardFade } from "@/components/motion/card-fade";
+import { SearchInput } from "@/components/search-input";
 
 type ProductEntry = {
   id: string;
@@ -29,6 +30,9 @@ type Option = {
   label: string;
   helper?: string;
 };
+
+const ACTION_BUTTON_CLASS =
+  "inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-purple-500 hover:text-purple-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/30 sm:h-9 sm:w-9";
 
 interface SalesLogClientProps {
   items: LogItem[];
@@ -148,26 +152,20 @@ export default function SalesLogClient({
   return (
     <div className="space-y-6">
       <CardFade className="border border-gray-200 bg-white px-6 py-5 shadow-sm">
-        <div className="flex flex-wrap items-center gap-3">
-          <input
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <SearchInput
             value={searchTerm}
             onChange={handleSearchChange}
-            placeholder="Cari transaksi..."
-            className="flex-1 rounded-xl border border-gray-200/80 px-4 py-3 text-sm text-gray-700 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+            placeholder="Cari transaksi penjualan..."
+            aria-label="Cari transaksi penjualan"
+            wrapperClassName="w-full flex-1"
           />
-          <button
-            type="button"
-            onClick={() => goToPage(1)}
-            className="rounded-xl bg-purple-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-purple-700"
-          >
-            Search
-          </button>
           {canManage && (
-            <div className="ml-auto flex items-center gap-2">
+            <div className="flex w-full flex-col gap-2 sm:ml-4 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
               <button
                 type="button"
                 onClick={openCsvModal}
-                className="rounded-xl border border-purple-200 bg-purple-50 px-6 py-3 text-sm font-semibold text-purple-700 transition hover:bg-purple-100"
+                className="w-full rounded-xl border border-purple-200 bg-purple-50 px-6 py-3 text-sm font-semibold text-purple-700 transition hover:bg-purple-100 sm:w-auto"
               >
                 CSV
               </button>
@@ -175,7 +173,7 @@ export default function SalesLogClient({
                 type="button"
                 onClick={openManualModal}
                 disabled={!hasProducts}
-                className="rounded-xl bg-purple-600 px-6 py-3 text-sm font-semibold text-white shadow transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-purple-600 px-6 py-3 text-sm font-semibold text-white shadow transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 Manual
               </button>
@@ -209,8 +207,9 @@ export default function SalesLogClient({
                     <button
                       type="button"
                       onClick={() => setDetailItem(item)}
-                      className="rounded-full p-2 text-gray-500 transition hover:bg-purple-100 hover:text-purple-700"
+                      className={ACTION_BUTTON_CLASS}
                       aria-label={`Detail ${item.transactionName}`}
+                      title="Detail"
                     >
                       <Eye className="h-4 w-4" />
                     </button>

@@ -10,17 +10,6 @@
   --text-secondary: #475569;
 }
 
-.dark {
-  color-scheme: dark;
-  --background: #01030d;
-  --foreground: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --surface: #1e293b;
-  --surface-muted: #243047;
-  --border: rgba(56, 189, 248, 0.3);
-  --accent: #38bdf8;
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -29,49 +18,12 @@ body {
   min-height: 100vh;
 }
 
-.dark body {
-  background: var(--background);
+.no-spinner::-webkit-inner-spin-button,
+.no-spinner::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
 }
 
-.dark .bg-white {
-  background-color: var(--surface);
-}
-
-.dark .bg-white\/80 {
-  background-color: color-mix(in srgb, var(--surface) 80%, transparent);
-}
-
-.dark .bg-gray-50,
-.dark .bg-gray-100,
-.dark .bg-gray-200 {
-  background-color: var(--surface-muted);
-}
-
-.dark .text-gray-900,
-.dark .text-gray-800,
-.dark .text-gray-700 {
-  color: var(--foreground);
-}
-
-.dark .text-gray-600,
-.dark .text-gray-500,
-.dark .text-gray-400,
-.dark .text-gray-300 {
-  color: var(--text-secondary);
-}
-
-.dark .border-gray-100,
-.dark .border-gray-200,
-.dark .border-gray-300 {
-  border-color: var(--border);
-}
-
-.dark .text-purple-600,
-.dark .text-purple-700 {
-  color: var(--accent);
-}
-
-.dark .bg-purple-600,
-.dark .bg-purple-700 {
-  background-color: var(--accent);
+.no-spinner {
+  -moz-appearance: textfield;
 }

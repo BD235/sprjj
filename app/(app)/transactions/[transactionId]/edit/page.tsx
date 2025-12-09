@@ -142,7 +142,7 @@ export default async function EditTransactionPage({ params }: EditTransactionPag
                     required
                     min={0}
                     defaultValue={transaction.quantity}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+                    className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
                   />
                 </div>
                 <div className="space-y-2">

@@ -45,30 +45,34 @@ model UserRole {
 }
 
 model Product {
-  id          String          @id @default(uuid()) @map("id_stok")
-  userId      String          @map("id_user")
-  stockName   String          @map("nama_stok")
-  category    String?         @map("kategori")
-  unit        MeasurementUnit @default(GRAM) @map("satuan")
-  price       Decimal         @map("harga_beli")
-  supplier    String?         @map("supplier")
-  supplierId  String?         @map("id_pemasok")
-  quantity    Int             @default(0) @map("jumlah")
-  lowStock    Int?            @map("sisa_stok")
-  createdAt   DateTime        @default(now()) @map("created_at")
-  updatedAt   DateTime        @updatedAt @map("updated_at")
-  supplierRef Supplier?       @relation(fields: [supplierId], references: [id])
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(uuid()) @map("id_stok")
+  userId     String   @map("id_user")
+  stockName  String   @map("nama_stok")
+  category   String   @map("kategori") @default("Uncategorized")
+  unit       Satuan   @default(GRAM) @map("satuan")
+  price      Decimal  @map("harga_beli")
+  supplier   String?  @map("supplier")
+  supplierId String?  @map("id_pemasok")
 
-  // 🔹 hubungan ke resep (bahan ini dipakai di menu apa saja)
+  // stok_awal (riwayat awal, tidak dipakai untuk logika harian)
+  initialStock Int     @map("jumlah") @default(0)
+  // sisa_stok jadi sumber kebenaran stok saat ini
+  quantity     Int     @map("sisa_stok") @default(0)
+  // stok_minimal untuk trigger notifikasi low stock
+  lowStock     Int     @map("stok_minimal") @default(0)
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  supplierRef Supplier? @relation(fields: [supplierId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   recipes Recipe[]
 
-  // 🔹 transaksi MASUK & KELUAR dipisah
   stockInTransactions  StockInTransaction[]
   stockOutTransactions StockOutTransaction[]
 
   notifications Notification[]
-  deletedAt     DateTime?      @map("deleted_at")
+  deletedAt     DateTime?  @map("deleted_at")
 
   @@index([userId, stockName])
   @@index([userId, deletedAt])
@@ -97,18 +101,18 @@ model Supplier {
 }
 
 model StockInTransaction {
-  id              String            @id @default(uuid()) @map("id_transaksi_masuk")
-  userId          String            @map("id_user")
-  productId       String            @map("id_stok")
-  supplierId      String?           @map("id_pemasok")
-  transactionName String            @map("nama_transaksi")
-  totalAmount     Decimal           @map("total_harga")
+  id              String    @id @default(uuid()) @map("id_transaksi_masuk")
+  userId          String    @map("id_user")
+  productId       String    @map("id_stok")
+  supplierId      String?   @map("id_pemasok")
+  transactionName String    @map("nama_transaksi")
+  totalAmount     Decimal   @map("total_harga")
   status          TransactionStatus @map("status")
-  quantity        Int               @map("jumlah")
-  transactionDate DateTime          @map("tanggal_transaksi")
-  paymentMethod   PaymentMethod     @map("metode_pembayaran")
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
+  quantity        Int       @map("jumlah")
+  transactionDate DateTime  @map("tanggal_transaksi")
+  paymentMethod   PaymentMethod @map("metode_pembayaran")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   supplier  Supplier? @relation(fields: [supplierId], references: [id])
@@ -120,16 +124,17 @@ model StockInTransaction {
 }
 
 model StockOutTransaction {
-  id              String   @id @default(uuid()) @map("id_transaksi_keluar")
-  userId          String   @map("id_user")
-  productId       String   @map("id_stok") // bahan yang berkurang
-  menuId          String?  @map("id_menu") // OPSIONAL: kalau keluar karena menu tertentu
-  transactionName String   @map("nama_transaksi") // misal: "PENJUALAN_UPLOAD_2025-11-20"
-  quantity        Int      @map("jumlah") // stok yang keluar (gram/ml/pcs)
-  transactionDate DateTime @map("tanggal_transaksi")
-  note            String?  @map("catatan") // keterangan tambahan (opsional)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id              String     @id @default(uuid()) @map("id_transaksi_keluar")
+  userId          String     @map("id_user")
+  productId       String     @map("id_stok") // bahan yang berkurang
+  menuId          String?    @map("id_menu") // OPSIONAL: kalau keluar karena menu tertentu
+  transactionName String     @map("nama_transaksi") // misal: "PENJUALAN_UPLOAD_2025-11-20"
+  quantity        Int        @map("jumlah") // stok yang keluar (gram/ml/pcs)
+  type            TipeKeluar @default(LAINNYA) @map("tipe_keluar")
+  transactionDate DateTime   @map("tanggal_transaksi")
+  note            String?    @map("catatan") // keterangan tambahan (opsional)
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
 
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   menu      Menu?   @relation(fields: [menuId], references: [id])
@@ -209,11 +214,17 @@ enum PaymentMethod {
   OTHER
 }
 
-enum MeasurementUnit {
+enum Satuan {
   GRAM
-  KG
   ML
   PCS
+}
+
+enum TipeKeluar {
+  RESEP
+  RUSAK
+  EXP
+  LAINNYA
 }
 
 enum NotificationType {

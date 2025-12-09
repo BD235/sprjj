@@ -16,7 +16,7 @@ export default function SignInForm() {
   const [mode, setMode] = useState<"sign-in" | "register">("sign-in");
   const isRegister = mode === "register";
   const title = useMemo(
-    () => (isRegister ? "Create your account" : "Welcome back"),
+    () => (isRegister ? "Create your account" : "Sign in"),
     [isRegister],
   );
   const subtitle = useMemo(
@@ -72,6 +72,8 @@ export default function SignInForm() {
       return;
     }
 
+    let shouldResetSubmitting = true;
+
     try {
       if (isRegister) {
         const response = await fetch("/api/register", {
@@ -109,12 +111,16 @@ export default function SignInForm() {
         return;
       }
 
+      shouldResetSubmitting = false;
       router.replace(result?.url ?? callbackUrl);
+      return;
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to sign in";
       setError(message);
     } finally {
-      setIsSubmitting(false);
+      if (shouldResetSubmitting) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -161,7 +167,7 @@ export default function SignInForm() {
               name="email"
               required
               autoComplete="email"
-              placeholder="m@example.com"
+              placeholder="email"
               className="rounded-lg"
             />
           </div>
@@ -177,6 +183,7 @@ export default function SignInForm() {
               name="password"
               required
               autoComplete="current-password"
+              placeholder="Password"
               className="rounded-lg"
             />
           </div>
@@ -227,8 +234,8 @@ export default function SignInForm() {
           className="w-full rounded-xl bg-purple-600 text-white shadow hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-60"
           size="lg"
           isLoading={isSubmitting}
-          loadingText={isRegister ? "Create Account" : "Signing in..."}
-          showLoadingText={isRegister}
+          loadingText={isRegister ? "Create Account" : "Login"}
+          showLoadingText
           disabled={isSubmitting}
         >
           {isRegister ? "Create Account" : "Login"}

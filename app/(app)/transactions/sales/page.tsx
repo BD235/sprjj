@@ -7,7 +7,6 @@ import { getClaimedRoles, getIsOwner } from "@/lib/role";
 
 const unitLabels: Record<string, string> = {
   GRAM: "gram",
-  KG: "kg",
   ML: "ml",
   PCS: "pcs",
 };

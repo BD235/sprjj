@@ -16,19 +16,18 @@ export default function SalesTransactionsLoading() {
       <Topbar title="Penjualan" />
       <div className="h-6" />
       <div className="space-y-6">
-        <div className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-xl dark:border-[#38BDF8]/20 dark:bg-[#1E293B] dark:shadow-black/40">
-          <div className="flex flex-wrap items-center gap-3">
-            <Skeleton className="h-12 w-full flex-1 rounded-2xl" />
-            <Skeleton className="h-12 w-32" />
-            <div className="ml-auto flex items-center gap-2">
-              <Skeleton className="h-12 w-20" />
-              <Skeleton className="h-12 w-28" />
+        <div className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-xl">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Skeleton className="h-12 w-full flex-1 rounded-full" />
+            <div className="flex w-full flex-col gap-2 sm:ml-4 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
+              <Skeleton className="h-12 w-full rounded-xl border border-gray-200 sm:w-24" />
+              <Skeleton className="h-12 w-full rounded-xl sm:w-28" />
             </div>
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-[#38BDF8]/20 dark:bg-[#1E293B] dark:shadow-black/40">
-          <div className="hidden border-b border-gray-100 px-6 py-4 text-sm font-semibold text-gray-500 dark:border-white/10 dark:text-gray-400 md:block">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+          <div className="hidden border-b border-gray-100 px-6 py-4 text-sm font-semibold text-gray-500 md:block">
             <div className="grid grid-cols-4 gap-4">
               {tableColumns.map((column) => (
                 <Skeleton key={column.key} className={`h-4 ${column.width}`} />
@@ -36,7 +35,7 @@ export default function SalesTransactionsLoading() {
             </div>
           </div>
 
-          <div className="divide-y divide-gray-100 dark:divide-white/5">
+          <div className="divide-y divide-gray-100">
             {tableRows.map((_, rowIndex) => (
               <div
                 key={`sales-skeleton-row-${rowIndex}`}

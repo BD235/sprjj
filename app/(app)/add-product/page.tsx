@@ -21,7 +21,6 @@ const CATEGORY_OPTIONS = [
 
 const UNIT_OPTIONS = [
   { value: "GRAM", label: "Gram (g)" },
-  { value: "KG", label: "Kilogram (kg)" },
   { value: "ML", label: "Mililiter (ml)" },
   { value: "PCS", label: "Pieces (pcs)" },
 ];
@@ -121,12 +120,16 @@ export default async function AddProductPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="price" className="text-sm font-medium text-gray-700">
-                    Price (Rp) *
-                  </label>
-                  <PriceInput id="price" name="price" min={0} required placeholder="0" className="w-full" />
-                </div>
+                <label htmlFor="price" className="text-sm font-medium text-gray-700">
+                  Price (Rp) *
+                </label>
+                <PriceInput id="price" name="price" min={0} required placeholder="0" className="w-full" />
+                <p className="text-xs text-gray-500">
+                  Harga disimpan per satuan dasar: GRAM dihitung per 1000 gram (1 kg), ML per 1000 ml (1 liter), PCS per
+                  1 pcs. Jika input berasal dari kemasan, konversikan dulu ke harga per satuan dasar.
+                </p>
               </div>
+            </div>
 
               <div className="space-y-2">
                 <label htmlFor="lowStock" className="text-sm font-medium text-gray-700">

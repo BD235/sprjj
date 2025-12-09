@@ -44,7 +44,7 @@ export default function PriceInput({
           disabled={disabled}
           inputMode="numeric"
           autoComplete="off"
-          className="w-full border-0 px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-0"
+          className="no-spinner w-full border-0 px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-0"
           {...rest}
         />
       </div>

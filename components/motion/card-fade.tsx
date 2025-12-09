@@ -21,10 +21,7 @@ export function CardFade({ children, className, delay = 0, ...props }: CardFadeP
         damping: 20,
         delay,
       }}
-      className={clsx(
-        "rounded-2xl border border-gray-100 bg-white shadow-xl transition-colors dark:border-[#38BDF8]/20 dark:bg-[#1E293B] dark:shadow-black/40",
-        className,
-      )}
+      className={clsx("rounded-2xl border border-gray-100 bg-white shadow-xl transition-colors", className)}
       {...props}
     >
       {children}

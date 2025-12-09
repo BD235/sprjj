@@ -43,23 +43,23 @@ export function DashboardStockLevelsTable({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Cari produk..."
-            className="w-full rounded-2xl border border-gray-200 bg-gray-50/80 py-2.5 pl-10 pr-4 text-sm text-gray-600 shadow-inner focus:border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-gray-200"
+            className="w-full rounded-2xl border border-gray-200 bg-gray-50/80 py-2.5 pl-10 pr-4 text-sm text-gray-600 shadow-inner focus:border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-100"
           />
         </div>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-sm text-gray-500">
           Menampilkan {filteredItems.length} dari {items.length} produk.
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm dark:border-slate-800 dark:bg-[#0F172A]">
+      <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
         {filteredItems.length === 0 ? (
-          <div className="p-6 text-center text-sm text-gray-500 dark:text-gray-400">
+          <div className="p-6 text-center text-sm text-gray-500">
             Tidak ada produk yang cocok dengan pencarian.
           </div>
         ) : (
           <div className="max-h-[28rem] overflow-y-auto">
-            <table className="min-w-full divide-y divide-gray-100 text-sm dark:divide-slate-800">
-              <thead className="bg-gray-50 text-left font-semibold text-gray-500 dark:bg-slate-900 dark:text-gray-400">
+            <table className="min-w-full divide-y divide-gray-100 text-sm">
+              <thead className="bg-gray-50 text-left font-semibold text-gray-500">
                 <tr>
                   <th className="px-5 py-3">Produk</th>
                   <th className="px-5 py-3">Update Terakhir</th>
@@ -67,7 +67,7 @@ export function DashboardStockLevelsTable({
                   <th className="px-5 py-3">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-gray-100">
                 {filteredItems.map((item) => {
                   const meta = statusMeta[item.status];
                   const threshold = item.lowStock > 0 ? item.lowStock : null;
@@ -77,16 +77,16 @@ export function DashboardStockLevelsTable({
                   const ratio = threshold !== null ? `${item.quantity}/${threshold}` : `${item.quantity}`;
 
                   return (
-                    <tr key={item.id} className="bg-white text-gray-900 dark:bg-transparent dark:text-gray-100">
+                    <tr key={item.id} className="bg-white text-gray-900">
                       <td className="px-5 py-4">
                         <div className="font-semibold">{item.stockName}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-gray-500">
                           Low stock: {threshold !== null ? threshold.toLocaleString("id-ID") : "—"}
                         </div>
                       </td>
-                      <td className="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">{lastUpdated}</td>
+                      <td className="px-5 py-4 text-sm text-gray-600">{lastUpdated}</td>
                       <td className="px-5 py-4 text-center">
-                        <span className="rounded-full bg-gray-50 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-slate-800 dark:text-gray-200">
+                        <span className="rounded-full bg-gray-50 px-3 py-1 text-xs font-semibold text-gray-700">
                           {ratio}
                         </span>
                       </td>

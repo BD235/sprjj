@@ -9,7 +9,7 @@ import { prisma } from "../prisma";
 import { getClaimedRoles, getIsOwner } from "@/lib/role";
 import { z } from "zod";
 
-const measurementUnitValues = ["GRAM", "KG", "ML", "PCS"] as const;
+const measurementUnitValues = ["GRAM", "ML", "PCS"] as const;
 
 const ProductSchema = z.object({
   stockName: z.string().min(1, "Stock name is required"),

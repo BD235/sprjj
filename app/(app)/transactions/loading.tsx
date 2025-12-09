@@ -20,21 +20,17 @@ export default function TransactionsLoading() {
       <Topbar />
       <div className="h-6" />
       <div className="space-y-6">
-        <div className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-xl dark:border-[#38BDF8]/20 dark:bg-[#1E293B] dark:shadow-black/40">
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <Skeleton className="h-12 w-full flex-1 rounded-2xl" />
-              <Skeleton className="h-12 w-32" />
-              <Skeleton className="h-12 w-36" />
-            </div>
-            <Skeleton className="h-3 w-48" />
+        <div className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-xl">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Skeleton className="h-12 w-full flex-1 rounded-full" />
+            <Skeleton className="h-12 w-full rounded-xl sm:w-44" />
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-[#38BDF8]/20 dark:bg-[#1E293B] dark:shadow-black/40">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
           <div className="overflow-x-auto">
-            <table className="min-w-[900px] w-full text-sm text-gray-700 dark:text-gray-200">
-              <thead className="bg-gray-200 text-left font-semibold text-gray-600 dark:bg-white/10 dark:text-gray-300">
+            <table className="min-w-[900px] w-full text-sm text-gray-700">
+              <thead className="bg-gray-200 text-left font-semibold text-gray-600">
                 <tr>
                   {tableHeadings.map((column) => (
                     <th key={column.key} className="px-6 py-3">
@@ -43,7 +39,7 @@ export default function TransactionsLoading() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white dark:divide-white/5 dark:bg-[#1E293B]">
+              <tbody className="divide-y divide-gray-100 bg-white">
                 {tableRows.map((_, rowIndex) => (
                   <tr key={`transactions-skeleton-row-${rowIndex}`}>
                     {tableHeadings.map((column) => {

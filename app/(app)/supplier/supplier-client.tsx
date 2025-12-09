@@ -6,6 +6,7 @@ import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { createSupplier, deleteSupplier, updateSupplier } from "@/lib/actions/suppliers";
 import { CardFade } from "@/components/motion/card-fade";
+import { SearchInput } from "@/components/search-input";
 
 interface SupplierItem {
   id: string;
@@ -33,6 +34,11 @@ const statusClasses: Record<string, string> = {
   ACTIVE: "bg-green-100 text-green-700",
   INACTIVE: "bg-gray-200 text-gray-600",
 };
+
+const ACTION_BUTTON_CLASS =
+  "inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-purple-500 hover:text-purple-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/30 sm:h-9 sm:w-9";
+const ACTION_BUTTON_DANGER_CLASS =
+  "inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-red-200 bg-white text-red-500 shadow-sm transition hover:border-red-400 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/30 sm:h-9 sm:w-9";
 
 function formatStatus(status: string) {
   const lower = status.toLowerCase();
@@ -217,24 +223,18 @@ export default function SupplierClient({ items, pageSize = 8, canDelete = false 
   return (
     <div className="space-y-6">
       <CardFade className="border border-gray-200 bg-white px-6 py-5 shadow-sm">
-        <div className="flex flex-wrap items-center gap-3">
-          <input
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <SearchInput
             value={searchTerm}
             onChange={handleSearchChange}
-            placeholder="Search supplier..."
-            className="flex-1 rounded-xl border border-gray-200/80 px-4 py-3 text-sm text-gray-700 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+            placeholder="Cari supplier..."
+            aria-label="Cari supplier"
+            wrapperClassName="w-full flex-1"
           />
           <button
             type="button"
-            onClick={() => goToPage(1)}
-            className="rounded-xl bg-purple-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-purple-700"
-          >
-            Search
-          </button>
-          <button
-            type="button"
             onClick={openAddDialog}
-            className="rounded-xl bg-purple-100 px-6 py-3 text-sm font-semibold text-purple-700 shadow hover:bg-purple-200"
+            className="w-full rounded-xl bg-purple-100 px-6 py-3 text-sm font-semibold text-purple-700 shadow hover:bg-purple-200 sm:w-auto"
           >
             + Add supplier
           </button>
@@ -268,20 +268,22 @@ export default function SupplierClient({ items, pageSize = 8, canDelete = false 
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
                         <button
                           type="button"
                           onClick={() => openEditModal(item)}
-                          className="rounded-full p-2 text-gray-500 transition hover:bg-purple-100 hover:text-purple-700"
+                          className={ACTION_BUTTON_CLASS}
                           aria-label={`Edit ${item.name}`}
+                          title="Edit"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
                         {canDelete && (
                           <button
                             type="button"
-                            className="rounded-full p-2 text-red-500 transition hover:bg-red-100 hover:text-red-600"
+                            className={ACTION_BUTTON_DANGER_CLASS}
                             aria-label={`Delete ${item.name}`}
+                            title="Delete"
                             onClick={() => openDeleteModal(item)}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -290,8 +292,9 @@ export default function SupplierClient({ items, pageSize = 8, canDelete = false 
                         <button
                           type="button"
                           onClick={() => openDetailModal(item)}
-                          className="rounded-full p-2 text-gray-500 transition hover:bg-purple-100 hover:text-purple-700"
+                          className={ACTION_BUTTON_CLASS}
                           aria-label={`View ${item.name}`}
+                          title="Detail"
                         >
                           <Eye className="h-4 w-4" />
                         </button>

@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
+import { useCallback, useMemo, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import PriceInput from "@/components/price-input";
 import { Modal } from "@/components/ui/modal";
 import { createTransaction, deleteTransaction, updateTransaction } from "@/lib/actions/transactions";
 import { CardFade } from "@/components/motion/card-fade";
+import { SearchInput } from "@/components/search-input";
 
 interface TransactionItem {
   id: string;
@@ -27,9 +28,14 @@ interface OptionItem {
   name: string;
 }
 
+interface ProductOption extends OptionItem {
+  price: number;
+  unit?: string;
+}
+
 interface TransactionsClientProps {
   items: TransactionItem[];
-  products: OptionItem[];
+  products: ProductOption[];
   suppliers: OptionItem[];
   pageSize?: number;
   canManage?: boolean;
@@ -52,6 +58,11 @@ const statusClasses: Record<string, string> = {
   COMPLETED: "bg-green-100 text-green-700",
   CANCELLED: "bg-red-100 text-red-600",
 };
+
+const ACTION_BUTTON_CLASS =
+  "inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-purple-500 hover:text-purple-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/30 sm:h-9 sm:w-9";
+const ACTION_BUTTON_DANGER_CLASS =
+  "inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-red-200 bg-white text-red-500 shadow-sm transition hover:border-red-400 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/30 sm:h-9 sm:w-9";
 
 function formatCurrency(amount: number) {
   if (!Number.isFinite(amount)) return "-";
@@ -123,8 +134,57 @@ export default function TransactionsClient({
   const [itemToEdit, setItemToEdit] = useState<TransactionItem | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
   const [isUpdating, startUpdateTransition] = useTransition();
+  const [editProductId, setEditProductId] = useState<string | null>(null);
+  const [editQuantity, setEditQuantity] = useState<string>("0");
+  const [addProductId, setAddProductId] = useState<string>("");
+  const [addQuantity, setAddQuantity] = useState<string>("");
   const hasProducts = products.length > 0;
   const addDefaultDate = useMemo(() => formatDatetimeLocal(new Date().toISOString()), []);
+  const productMetaMap = useMemo(() => {
+    const map = new Map<string, { price: number; unit?: string }>();
+    products.forEach((p) => {
+      if (typeof p.price === "number") {
+        map.set(p.id, { price: p.price, unit: p.unit });
+      }
+    });
+    return map;
+  }, [products]);
+
+  const parseQuantity = (value: string) => {
+    const parsed = Number.parseInt(value || "0", 10);
+    return Number.isNaN(parsed) || parsed < 0 ? 0 : parsed;
+  };
+
+  const addQuantityValue = useMemo(() => parseQuantity(addQuantity), [addQuantity]);
+  const editQuantityValue = useMemo(() => parseQuantity(editQuantity ?? ""), [editQuantity]);
+
+  const calculateTotalPrice = useCallback(
+    (productId: string | null, quantityValue: number) => {
+      if (!productId) return 0;
+      const meta = productMetaMap.get(productId);
+      if (!meta) return 0;
+      const divisor = meta.unit === "GRAM" || meta.unit === "ML" ? 1000 : 1;
+      const total = meta.price * (quantityValue / divisor);
+      return Math.max(0, Math.round(total));
+    },
+    [productMetaMap],
+  );
+
+  const addTotalPrice = useMemo(
+    () => calculateTotalPrice(addProductId || null, addQuantityValue),
+    [calculateTotalPrice, addProductId, addQuantityValue],
+  );
+  const addUnitPrice = useMemo(() => productMetaMap.get(addProductId)?.price ?? 0, [productMetaMap, addProductId]);
+  const editTotalPrice = useMemo(() => {
+    if (!itemToEdit) return 0;
+    const productId = editProductId ?? itemToEdit.productId;
+    return calculateTotalPrice(productId, editQuantityValue || itemToEdit.quantity || 0);
+  }, [calculateTotalPrice, editProductId, editQuantityValue, itemToEdit]);
+  const editUnitPrice = useMemo(() => {
+    if (!itemToEdit) return 0;
+    const productId = editProductId ?? itemToEdit.productId;
+    return productMetaMap.get(productId)?.price ?? 0;
+  }, [productMetaMap, editProductId, itemToEdit]);
 
   const filteredItems = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -152,6 +212,19 @@ export default function TransactionsClient({
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
     setCurrentPage(1);
+  };
+
+  const handleQuantityInputChange = (
+    setter: (value: string) => void,
+    value: string,
+  ) => {
+    if (value === "") {
+      setter("");
+      return;
+    }
+    if (/^\d+$/.test(value)) {
+      setter(value.replace(/^0+(?=\d)/, "") || "0");
+    }
   };
 
   const goToPage = (page: number) => {
@@ -192,12 +265,16 @@ export default function TransactionsClient({
     if (!hasProducts) return;
     setIsAddDialogOpen(true);
     setAddError(null);
+    setAddProductId(products[0]?.id ?? "");
+    setAddQuantity("");
   };
 
   const closeAddDialog = () => {
     if (isCreating) return;
     setIsAddDialogOpen(false);
     setAddError(null);
+    setAddProductId("");
+    setAddQuantity("");
   };
 
   const handleAddTransactionSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -212,6 +289,8 @@ export default function TransactionsClient({
         await createTransaction(formData);
         form.reset();
         setIsAddDialogOpen(false);
+        setAddProductId("");
+        setAddQuantity(0);
         router.refresh();
       } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to add transaction";
@@ -231,6 +310,8 @@ export default function TransactionsClient({
   const openEditModal = (item: TransactionItem) => {
     if (!canManage) return;
     setItemToEdit(item);
+    setEditProductId(item.productId);
+    setEditQuantity(String(item.quantity));
     setEditError(null);
   };
 
@@ -266,26 +347,20 @@ export default function TransactionsClient({
     <div className="space-y-6">
       <CardFade className="border border-gray-200 bg-white px-6 py-5 shadow-sm">
         <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-center gap-3">
-            <input
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <SearchInput
               value={searchTerm}
               onChange={handleSearchChange}
-              placeholder="Search transactions..."
-              className="flex-1 rounded-xl border border-gray-200/80 px-4 py-3 text-sm text-gray-700 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+              placeholder="Cari transaksi pembelian..."
+              aria-label="Cari transaksi pembelian"
+              wrapperClassName="w-full flex-1"
             />
-            <button
-              type="button"
-              onClick={() => goToPage(1)}
-              className="rounded-xl bg-purple-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-purple-700"
-            >
-              Search
-            </button>
             {canManage && (
               <button
                 type="button"
                 onClick={openAddDialog}
                 disabled={!hasProducts}
-                className="rounded-xl bg-purple-100 px-6 py-3 text-sm font-semibold text-purple-700 shadow hover:bg-purple-200 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-purple-100 px-6 py-3 text-sm font-semibold text-purple-700 shadow hover:bg-purple-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 + Add transaction
               </button>
@@ -337,13 +412,14 @@ export default function TransactionsClient({
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
                         {canManage && (
                           <button
                             type="button"
                             onClick={() => openEditModal(item)}
-                            className="rounded-full p-2 text-gray-500 transition hover:bg-purple-100 hover:text-purple-700"
+                            className={ACTION_BUTTON_CLASS}
                             aria-label={`Edit ${item.name}`}
+                            title="Edit"
                           >
                             <Pencil className="h-4 w-4" />
                           </button>
@@ -351,8 +427,9 @@ export default function TransactionsClient({
                         {canManage && (
                           <button
                             type="button"
-                            className="rounded-full p-2 text-red-500 transition hover:bg-red-100 hover:text-red-600"
+                            className={ACTION_BUTTON_DANGER_CLASS}
                             aria-label={`Delete ${item.name}`}
+                            title="Delete"
                             onClick={() => openDeleteModal(item)}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -361,8 +438,9 @@ export default function TransactionsClient({
                         <button
                           type="button"
                           onClick={() => openDetailModal(item)}
-                          className="rounded-full p-2 text-gray-500 transition hover:bg-purple-100 hover:text-purple-700"
+                          className={ACTION_BUTTON_CLASS}
                           aria-label={`View ${item.name}`}
+                          title="Detail"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
@@ -543,7 +621,8 @@ export default function TransactionsClient({
                   id="edit-productId"
                   name="productId"
                   required
-                  defaultValue={itemToEdit.productId}
+                  value={editProductId ?? itemToEdit.productId}
+                  onChange={(e) => setEditProductId(e.target.value)}
                   disabled={isUpdating}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
                 >
@@ -582,13 +661,26 @@ export default function TransactionsClient({
                 </label>
                 <input
                   type="number"
-                  id="edit-quantity"
-                  name="quantity"
+                id="edit-quantity"
+                name="quantity"
+                min={0}
+                required
+                value={editQuantity}
+                onChange={(e) => setEditQuantity(Number(e.target.value))}
+                disabled={isUpdating}
+                className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+              />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Unit Price (Rp)
+                </label>
+                <PriceInput
                   min={0}
-                  required
-                  defaultValue={itemToEdit.quantity}
-                  disabled={isUpdating}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+                  readOnly
+                  disabled
+                  value={Math.round(editUnitPrice)}
+                  className="w-full"
                 />
               </div>
               <div className="space-y-2">
@@ -600,8 +692,9 @@ export default function TransactionsClient({
                   name="totalAmount"
                   min={0}
                   required
+                  readOnly
                   disabled={isUpdating}
-                  defaultValue={itemToEdit.totalPrice}
+                  value={Math.round(editTotalPrice)}
                   className="w-full"
                 />
               </div>
@@ -722,7 +815,8 @@ export default function TransactionsClient({
                   id="add-productId"
                   name="productId"
                   required
-                  defaultValue=""
+                  value={addProductId}
+                  onChange={(e) => setAddProductId(e.target.value)}
                   disabled={isCreating}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
                 >
@@ -758,11 +852,11 @@ export default function TransactionsClient({
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label htmlFor="add-quantity" className="text-sm font-medium">
-                  Quantity *
-                </label>
-                <input
+            <div className="space-y-2">
+              <label htmlFor="add-quantity" className="text-sm font-medium">
+                Quantity *
+              </label>
+              <input
                   type="number"
                   id="add-quantity"
                   name="quantity"
@@ -770,22 +864,32 @@ export default function TransactionsClient({
                   min={0}
                   placeholder="0"
                   disabled={isCreating}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="add-totalAmount" className="text-sm font-medium">
-                  Total Price (Rp) *
-                </label>
-                <PriceInput
-                  id="add-totalAmount"
-                  name="totalAmount"
-                  min={0}
-                  required
-                  disabled={isCreating}
-                  className="w-full"
-                />
-              </div>
+                  value={addQuantity}
+                  onChange={(e) => setAddQuantity(Number(e.target.value))}
+                  className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Unit Price (Rp)
+              </label>
+              <PriceInput min={0} readOnly disabled value={Math.round(addUnitPrice)} className="w-full" />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="add-totalAmount" className="text-sm font-medium">
+                Total Price (Rp) *
+              </label>
+              <PriceInput
+                id="add-totalAmount"
+                name="totalAmount"
+                min={0}
+                required
+                readOnly
+                disabled={isCreating}
+                value={Math.round(addTotalPrice)}
+                className="w-full"
+              />
+            </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">

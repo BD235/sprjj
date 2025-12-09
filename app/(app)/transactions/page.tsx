@@ -57,6 +57,8 @@ export default async function TransactionsPage() {
   const productOptions = products.map((product: (typeof products)[number]) => ({
     id: product.id,
     name: product.stockName,
+    price: Number(product.price),
+    unit: product.unit,
   }));
 
   const supplierOptions = suppliers.map((supplier: SupplierOption) => ({

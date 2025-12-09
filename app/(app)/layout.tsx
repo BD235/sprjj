@@ -14,7 +14,7 @@ export default async function AppLayout({ children }: AppLayoutProps) {
   const isOwner = await getIsOwner(user.id, user.email, claimedRoles, userRecordId);
 
   return (
-    <div className="min-h-screen bg-white transition-colors dark:bg-[#0F172A]">
+    <div className="min-h-screen bg-white transition-colors">
       <Sidebar isOwner={isOwner} />
       <main className="p-4 pb-12 lg:ml-[12rem] lg:p-8 lg:pb-12">{children}</main>
     </div>

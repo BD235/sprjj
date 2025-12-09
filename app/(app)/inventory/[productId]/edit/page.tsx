@@ -22,7 +22,6 @@ const CATEGORY_OPTIONS = [
 
 const UNIT_OPTIONS = [
   { value: "GRAM", label: "Gram (g)" },
-  { value: "KG", label: "Kilogram (kg)" },
   { value: "ML", label: "Mililiter (ml)" },
   { value: "PCS", label: "Pieces (pcs)" },
 ];
@@ -170,6 +169,10 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
                   defaultValue={Math.round(product.price.toNumber())}
                   className="w-full"
                 />
+                <p className="text-xs text-gray-500">
+                  Harga disimpan per satuan dasar: GRAM dihitung per 1000 gram (1 kg), ML per 1000 ml (1 liter), PCS per
+                  1 pcs. Jika input berasal dari kemasan, konversikan dulu ke harga per satuan dasar.
+                </p>
               </div>
             </div>
 

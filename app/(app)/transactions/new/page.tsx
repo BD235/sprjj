@@ -6,6 +6,14 @@ import { prisma } from "@/lib/prisma";
 import { requireAnyRole } from "@/lib/role-guard";
 import Link from "next/link";
 import type { SupplierOption } from "@/types/supplier";
+import { useCallback, useMemo, useState, useTransition } from "react";
+
+type ProductOption = {
+  id: string;
+  name: string;
+  price: number;
+  unit: string;
+};
 
 const PAYMENT_METHOD_OPTIONS = [
   { value: "CASH", label: "Cash" },
@@ -39,10 +47,19 @@ export default async function NewTransactionPage() {
   }) as Promise<SupplierOption[]>;
 
   const [products, suppliers] = await Promise.all([
-    prisma.product.findMany({
-      where: { OR: [{ userId: user.id }, { userId: dbUserId }] },
-      orderBy: { stockName: "asc" },
-    }),
+    prisma.product
+      .findMany({
+        where: { OR: [{ userId: user.id }, { userId: dbUserId }] },
+        orderBy: { stockName: "asc" },
+      })
+      .then((rows) =>
+        rows.map((p) => ({
+          id: p.id,
+          name: p.stockName,
+          price: Number(p.price),
+          unit: p.unit,
+        })),
+      ),
     supplierOptionsPromise,
   ]);
 
@@ -63,7 +80,67 @@ export default async function NewTransactionPage() {
             </div>
           )}
 
-          <form className="space-y-6" action={createTransaction}>
+          <NewTransactionForm
+            products={products}
+            suppliers={suppliers}
+            defaultDate={defaultDate}
+            hasProducts={hasProducts}
+          />
+        </div>
+      </section>
+    </>
+  );
+}
+
+function NewTransactionForm({
+  products,
+  suppliers,
+  defaultDate,
+  hasProducts,
+}: {
+  products: ProductOption[];
+  suppliers: SupplierOption[];
+  defaultDate: string;
+  hasProducts: boolean;
+}) {
+  "use client";
+  const [productId, setProductId] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [isSubmitting, startTransition] = useTransition();
+
+  const selectedProduct = useMemo(
+    () => products.find((p) => p.id === productId),
+    [products, productId],
+  );
+  const unitPrice = selectedProduct?.price ?? 0;
+  const quantityValue = useMemo(() => {
+    const parsed = Number.parseInt(quantity || "0", 10);
+    if (Number.isNaN(parsed) || parsed < 0) return 0;
+    return parsed;
+  }, [quantity]);
+  const totalPrice = useMemo(() => {
+    if (!selectedProduct) return 0;
+    return Math.max(0, selectedProduct.price * quantityValue);
+  }, [selectedProduct, quantityValue]);
+
+  const handleQuantityChange = useCallback((value: string) => {
+    if (value === "") {
+      setQuantity("");
+      return;
+    }
+    if (/^\d+$/.test(value)) {
+      setQuantity(value.replace(/^0+(?=\d)/, "") || "0");
+    }
+  }, []);
+
+  const handleSubmit = (formData: FormData) => {
+    startTransition(async () => {
+      await createTransaction(formData);
+    });
+  };
+
+  return (
+          <form className="space-y-6" action={handleSubmit}>
             <div className="space-y-2">
               <label htmlFor="transactionName" className="text-sm font-medium text-gray-700">
                 Transaction Name *
@@ -91,13 +168,14 @@ export default async function NewTransactionPage() {
                     defaultValue=""
                     disabled={!hasProducts}
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+                    onChange={(e) => setProductId(e.target.value)}
                   >
                     <option value="" disabled>
                       Select product
                     </option>
-                    {products.map((product: (typeof products)[number]) => (
+                    {products.map((product) => (
                       <option key={product.id} value={product.id}>
-                        {product.stockName}
+                        {product.name}
                       </option>
                     ))}
                   </select>
@@ -131,29 +209,46 @@ export default async function NewTransactionPage() {
                   <input
                     type="number"
                     id="quantity"
-                    name="quantity"
-                    required
+                  name="quantity"
+                  required
+                  min={0}
+                  placeholder="0"
+                  disabled={!hasProducts}
+                  inputMode="numeric"
+                  value={quantity}
+                  onChange={(e) => handleQuantityChange(e.target.value)}
+                  className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                    Unit Price (Rp)
+                  </label>
+                  <PriceInput
                     min={0}
-                    placeholder="0"
-                    disabled={!hasProducts}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+                    readOnly
+                    disabled
+                    value={Math.round(unitPrice)}
+                    className="w-full"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="totalAmount" className="text-sm font-medium text-gray-700">
-                    Total Price (Rp) *
-                  </label>
-                  <PriceInput
-                    id="totalAmount"
-                    name="totalAmount"
-                    min={0}
-                    required
-                    placeholder="0"
-                    className="w-full"
-                    disabled={!hasProducts}
-                  />
-                </div>
+                <label htmlFor="totalAmount" className="text-sm font-medium text-gray-700">
+                  Total Price (Rp) *
+                </label>
+                <PriceInput
+                  id="totalAmount"
+                  name="totalAmount"
+                  min={0}
+                  required
+                  placeholder="0"
+                  value={Number.isFinite(totalPrice) ? Math.round(totalPrice) : 0}
+                  readOnly
+                  className="w-full"
+                  disabled={!hasProducts}
+                />
               </div>
+            </div>
 
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-2">

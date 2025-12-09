@@ -17,16 +17,15 @@ export default function InventoryLoading() {
       <Topbar />
       <div className="h-6" />
       <div className="space-y-6">
-        <div className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-xl dark:border-[#38BDF8]/20 dark:bg-[#1E293B] dark:shadow-black/40">
-          <div className="flex flex-wrap items-center gap-3">
-            <Skeleton className="h-12 w-full flex-1 rounded-2xl" />
-            <Skeleton className="h-12 w-32" />
-            <Skeleton className="h-12 w-32" />
+        <div className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-xl">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Skeleton className="h-12 w-full flex-1 rounded-full" />
+            <Skeleton className="h-12 w-full rounded-xl sm:w-36" />
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-[#38BDF8]/20 dark:bg-[#1E293B] dark:shadow-black/40">
-          <div className="hidden border-b border-gray-100 px-6 py-4 text-sm font-semibold text-gray-500 dark:border-white/10 dark:text-gray-400 md:block">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+          <div className="hidden border-b border-gray-100 px-6 py-4 text-sm font-semibold text-gray-500 md:block">
             <div className="grid grid-cols-6 gap-4">
               {tableColumns.map((column, index) => (
                 <Skeleton key={index} className={`h-4 ${column.className}`} />
@@ -34,7 +33,7 @@ export default function InventoryLoading() {
             </div>
           </div>
 
-          <div className="divide-y divide-gray-100 dark:divide-white/5">
+          <div className="divide-y divide-gray-100">
             {tableRows.map((_, rowIndex) => (
               <div
                 key={`inventory-skeleton-row-${rowIndex}`}
