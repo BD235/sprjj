@@ -281,7 +281,7 @@ async function getTopUsedStocks(userId: string) {
     LIMIT 5;
   `;
 
-  return rows.map((row) => ({
+  return rows.map((row: { id: string; name: string; totalUsed: bigint | number }) => ({
     productId: row.id,
     stockName: row.name,
     quantity: Number(row.totalUsed ?? 0),
