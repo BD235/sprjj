@@ -152,7 +152,7 @@ export async function createTransaction(formData: FormData) {
     await assertSupplierOwnership(parsed.data.supplierId, ownerIds);
   }
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: TransactionClient) => {
     await tx.stockInTransaction.create({
       data: {
         userId: dbUserId,
@@ -227,7 +227,7 @@ export async function updateTransaction(formData: FormData) {
     throw new Error("Transaction not found");
   }
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: TransactionClient) => {
     if (existing.status === "COMPLETED") {
       await adjustProductQuantity(tx, existing.productId, ownerIds, -existing.quantity);
     }
@@ -279,7 +279,7 @@ export async function deleteTransaction(formData: FormData) {
     throw new Error("Transaction not found");
   }
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: TransactionClient) => {
     if (existing.status === "COMPLETED") {
       await adjustProductQuantity(tx, existing.productId, ownerIds, -existing.quantity);
     }
