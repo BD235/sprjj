@@ -2,11 +2,23 @@
 
 import { redirect } from "next/navigation";
 import { Decimal } from "@prisma/client/runtime/library";
-import { PaymentMethod, TransactionStatus } from "@prisma/client";
 import { z } from "zod";
 import { ensureUserInDB, getCurrentUser } from "../auth";
 import { requireAnyRole } from "../role-guard";
 import { prisma } from "../prisma";
+
+// Local type definitions for Prisma v6 compatibility
+type TransactionClient = Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">;
+
+// Prisma namespace for where types
+type Prisma = {
+  ProductWhereInput: Parameters<typeof prisma.product.findFirst>[0] extends { where?: infer W } ? W : never;
+  SupplierWhereInput: Parameters<typeof prisma.supplier.findFirst>[0] extends { where?: infer W } ? W : never;
+};
+
+// Enum values matching Prisma schema
+const PaymentMethodEnum = ["CASH", "TRANSFER", "OTHER"] as const;
+const TransactionStatusEnum = ["PENDING", "COMPLETED", "CANCELLED"] as const;
 
 const TransactionSchema = z.object({
   transactionName: z.string().trim().min(1, "Transaction name is required"),
@@ -17,11 +29,11 @@ const TransactionSchema = z.object({
   transactionDate: z
     .coerce.date({ invalid_type_error: "Transaction date is required" })
     .refine((date) => !Number.isNaN(date.getTime()), "Transaction date is required"),
-  paymentMethod: z.nativeEnum(PaymentMethod, {
-    errorMap: () => ({ message: "Invalid payment method" }),
+  paymentMethod: z.enum(PaymentMethodEnum, {
+    error: "Invalid payment method",
   }),
-  status: z.nativeEnum(TransactionStatus, {
-    errorMap: () => ({ message: "Invalid status value" }),
+  status: z.enum(TransactionStatusEnum, {
+    error: "Invalid status value",
   }),
 });
 
@@ -40,7 +52,7 @@ type OwnerIds = {
   fallback?: string;
 };
 
-function ownedProductWhere(productId: string, ownerIds: OwnerIds): Prisma.ProductWhereInput {
+function ownedProductWhere(productId: string, ownerIds: OwnerIds): Prisma["ProductWhereInput"] {
   if (ownerIds.fallback) {
     return {
       id: productId,
@@ -50,7 +62,7 @@ function ownedProductWhere(productId: string, ownerIds: OwnerIds): Prisma.Produc
   return { id: productId, userId: ownerIds.primary };
 }
 
-function ownedSupplierWhere(supplierId: string, ownerIds: OwnerIds): Prisma.SupplierWhereInput {
+function ownedSupplierWhere(supplierId: string, ownerIds: OwnerIds): Prisma["SupplierWhereInput"] {
   if (ownerIds.fallback) {
     return {
       id: supplierId,
@@ -61,7 +73,7 @@ function ownedSupplierWhere(supplierId: string, ownerIds: OwnerIds): Prisma.Supp
 }
 
 async function adjustProductQuantity(
-  tx: Prisma.TransactionClient,
+  tx: TransactionClient,
   productId: string,
   ownerIds: OwnerIds,
   amount: number,

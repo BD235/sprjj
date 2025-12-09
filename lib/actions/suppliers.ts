@@ -1,18 +1,19 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { SupplierStatus } from "@prisma/client";
 import { z } from "zod";
 import { ensureUserInDB } from "../auth";
 import { requireAnyRole } from "../role-guard";
 import { prisma } from "../prisma";
+
+const SupplierStatusEnum = ["ACTIVE", "INACTIVE"] as const;
 
 const SupplierSchema = z.object({
   name: z.string().trim().min(1, "Supplier name is required"),
   category: z.string().trim().min(1, "Category is required"),
   whatsappNumber: z.string().trim().optional(),
   address: z.string().trim().optional(),
-  status: z.nativeEnum(SupplierStatus, {
+  status: z.enum(SupplierStatusEnum, {
     error: "Invalid status value",
   }),
 });
