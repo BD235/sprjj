@@ -2,10 +2,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { Prisma } from "@prisma/client";
 import { requireAnyRole } from "../role-guard";
 import { ensureUserInDB, getCurrentUser } from "../auth";
 import { prisma } from "../prisma";
+
+type TransactionClient = Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">;
 
 const CsvRowSchema = z.object({
   menuValue: z.string().min(1, "Menu tidak boleh kosong"),
@@ -334,7 +335,7 @@ export async function uploadSalesCsv(
 
     // 3. Execute Database Transaction
     await prisma.$transaction(
-      async (tx: Prisma.TransactionClient) => {
+      async (tx: TransactionClient) => {
         // A. Verify all products exist and belong to the user
         // We only need to check existence and ownership, but we might as well lock them or check quantity if needed.
         // For now, just ensuring they exist is enough as per original logic.
@@ -348,7 +349,7 @@ export async function uploadSalesCsv(
 
         if (validProducts.length !== uniqueProductIds.length) {
           // Find which one is missing
-          const validIds = new Set(validProducts.map((p) => p.id));
+          const validIds = new Set(validProducts.map((p: { id: string }) => p.id));
           const missingId = uniqueProductIds.find((id) => !validIds.has(id));
           throw new Error(
             `Bahan dengan ID ${missingId} tidak ditemukan atau bukan milik Anda`,
