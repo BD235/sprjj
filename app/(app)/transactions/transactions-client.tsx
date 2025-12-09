@@ -290,7 +290,7 @@ export default function TransactionsClient({
         form.reset();
         setIsAddDialogOpen(false);
         setAddProductId("");
-        setAddQuantity(0);
+        setAddQuantity("");
         router.refresh();
       } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to add transaction";
@@ -479,11 +479,10 @@ export default function TransactionsClient({
                 key={page}
                 type="button"
                 onClick={() => goToPage(page)}
-                className={`rounded-lg px-3 py-2 text-sm transition ${
-                  page === currentPage
-                    ? "bg-purple-600 text-white shadow"
-                    : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-100"
-                }`}
+                className={`rounded-lg px-3 py-2 text-sm transition ${page === currentPage
+                  ? "bg-purple-600 text-white shadow"
+                  : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-100"
+                  }`}
               >
                 {page}
               </button>
@@ -661,15 +660,15 @@ export default function TransactionsClient({
                 </label>
                 <input
                   type="number"
-                id="edit-quantity"
-                name="quantity"
-                min={0}
-                required
-                value={editQuantity}
-                onChange={(e) => setEditQuantity(Number(e.target.value))}
-                disabled={isUpdating}
-                className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
-              />
+                  id="edit-quantity"
+                  name="quantity"
+                  min={0}
+                  required
+                  value={editQuantity}
+                  onChange={(e) => setEditQuantity(e.target.value)}
+                  disabled={isUpdating}
+                  className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">
@@ -852,11 +851,11 @@ export default function TransactionsClient({
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <label htmlFor="add-quantity" className="text-sm font-medium">
-                Quantity *
-              </label>
-              <input
+              <div className="space-y-2">
+                <label htmlFor="add-quantity" className="text-sm font-medium">
+                  Quantity *
+                </label>
+                <input
                   type="number"
                   id="add-quantity"
                   name="quantity"
@@ -865,31 +864,31 @@ export default function TransactionsClient({
                   placeholder="0"
                   disabled={isCreating}
                   value={addQuantity}
-                  onChange={(e) => setAddQuantity(Number(e.target.value))}
+                  onChange={(e) => setAddQuantity(e.target.value)}
                   className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Unit Price (Rp)
-              </label>
-              <PriceInput min={0} readOnly disabled value={Math.round(addUnitPrice)} className="w-full" />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="add-totalAmount" className="text-sm font-medium">
-                Total Price (Rp) *
-              </label>
-              <PriceInput
-                id="add-totalAmount"
-                name="totalAmount"
-                min={0}
-                required
-                readOnly
-                disabled={isCreating}
-                value={Math.round(addTotalPrice)}
-                className="w-full"
-              />
-            </div>
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Unit Price (Rp)
+                </label>
+                <PriceInput min={0} readOnly disabled value={Math.round(addUnitPrice)} className="w-full" />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="add-totalAmount" className="text-sm font-medium">
+                  Total Price (Rp) *
+                </label>
+                <PriceInput
+                  id="add-totalAmount"
+                  name="totalAmount"
+                  min={0}
+                  required
+                  readOnly
+                  disabled={isCreating}
+                  value={Math.round(addTotalPrice)}
+                  className="w-full"
+                />
+              </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">

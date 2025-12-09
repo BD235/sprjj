@@ -13,7 +13,7 @@ const SupplierSchema = z.object({
   whatsappNumber: z.string().trim().optional(),
   address: z.string().trim().optional(),
   status: z.nativeEnum(SupplierStatus, {
-    errorMap: () => ({ message: "Invalid status value" }),
+    error: "Invalid status value",
   }),
 });
 

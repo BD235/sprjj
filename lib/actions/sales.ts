@@ -333,7 +333,7 @@ export async function uploadSalesCsv(
 
     // 3. Execute Database Transaction
     await prisma.$transaction(
-      async (tx: typeof prisma) => {
+      async (tx) => {
         // A. Verify all products exist and belong to the user
         // We only need to check existence and ownership, but we might as well lock them or check quantity if needed.
         // For now, just ensuring they exist is enough as per original logic.
@@ -394,7 +394,7 @@ export async function uploadSalesCsv(
   }
 }
 
-function extractFirstError<T>(result: z.SafeParseReturnType<unknown, T>) {
+function extractFirstError(result: { success: false; error: z.ZodError }) {
   const details = result.error.flatten();
   return (
     details.formErrors[0] ??
