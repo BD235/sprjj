@@ -48,7 +48,7 @@ export async function updateUserRole(formData: FormData) {
   const ownerRole = await getRoleByName("OWNER");
   const pegawaiRole = await getRoleByName("PEGAWAI");
 
-  const isCurrentlyOwner = targetUser.roles.some((entry) => entry.role.name === "OWNER");
+  const isCurrentlyOwner = targetUser.roles.some((entry: { role: { name: string } }) => entry.role.name === "OWNER");
 
   if (role === "PEGAWAI" && isCurrentlyOwner) {
     const remainingOwners = await prisma.userRole.count({
