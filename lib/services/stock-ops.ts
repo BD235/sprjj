@@ -109,11 +109,15 @@ export async function prosesPenjualanMenu(payload: SalePayload, client?: PrismaC
     const asInt = (value: number) => Math.round(value);
 
     await Promise.all(
-      Array.from(kebutuhan.entries()).map(([productId, totalKeluar]) =>
-        tx.stockOutTransaction.create({
+      Array.from(kebutuhan.entries()).map(([productId, totalKeluar]) => {
+        const productUserId = userId ?? stokMap.get(productId)?.userId;
+        if (!productUserId) {
+          throw new Error(`userId tidak ditemukan untuk produk ${productId}`);
+        }
+        return tx.stockOutTransaction.create({
           data: {
             productId,
-            userId: userId ?? stokMap.get(productId)?.userId,
+            userId: productUserId,
             menuId,
             transactionName: "PENJUALAN_MENU",
             quantity: asInt(totalKeluar),
@@ -121,8 +125,8 @@ export async function prosesPenjualanMenu(payload: SalePayload, client?: PrismaC
             transactionDate: new Date(),
             note: `Penjualan menu ${menuId} x${porsi}`,
           },
-        }),
-      ),
+        });
+      }),
     );
 
     // Update stok (decrement)
