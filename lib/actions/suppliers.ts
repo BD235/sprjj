@@ -37,15 +37,13 @@ export async function createSupplier(formData: FormData) {
       ? rawRedirectPreference
       : null;
 
+  const statusVal = formData.get("status");
   const parsed = SupplierSchema.safeParse({
     name: typeof formData.get("name") === "string" ? formData.get("name") : "",
     category: typeof formData.get("category") === "string" ? formData.get("category") : "",
     whatsappNumber: optionalString(formData.get("whatsappNumber")),
     address: optionalString(formData.get("address")),
-    status:
-      typeof formData.get("status") === "string"
-        ? formData.get("status").trim().toUpperCase()
-        : "",
+    status: typeof statusVal === "string" ? statusVal.trim().toUpperCase() : "",
   });
 
   if (!parsed.success) {
@@ -77,7 +75,8 @@ export async function createSupplier(formData: FormData) {
 export async function deleteSupplier(formData: FormData) {
   await requireAnyRole(["OWNER"]);
   const dbUserId = await ensureUserInDB();
-  const id = typeof formData.get("id") === "string" ? formData.get("id") : "";
+  const idVal = formData.get("id");
+  const id = typeof idVal === "string" ? idVal.trim() : "";
 
   if (!id) {
     throw new Error("Missing supplier id");
@@ -105,16 +104,14 @@ export async function updateSupplier(formData: FormData) {
       ? rawRedirectPreference
       : null;
 
+  const statusValUpdate = formData.get("status");
   const parsed = SupplierUpdateSchema.safeParse({
     id: typeof formData.get("id") === "string" ? formData.get("id") : "",
     name: typeof formData.get("name") === "string" ? formData.get("name") : "",
     category: typeof formData.get("category") === "string" ? formData.get("category") : "",
     whatsappNumber: optionalString(formData.get("whatsappNumber")),
     address: optionalString(formData.get("address")),
-    status:
-      typeof formData.get("status") === "string"
-        ? formData.get("status").trim().toUpperCase()
-        : "",
+    status: typeof statusValUpdate === "string" ? statusValUpdate.trim().toUpperCase() : "",
   });
 
   if (!parsed.success) {
