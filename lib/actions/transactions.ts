@@ -125,6 +125,8 @@ export async function createTransaction(formData: FormData) {
       ? rawRedirectPreference
       : null;
 
+  const paymentMethodVal = formData.get("paymentMethod");
+  const statusVal = formData.get("status");
   const parsed = TransactionSchema.safeParse({
     transactionName: formData.get("transactionName"),
     productId: formData.get("productId"),
@@ -132,12 +134,8 @@ export async function createTransaction(formData: FormData) {
     quantity: formData.get("quantity"),
     totalAmount: formData.get("totalAmount"),
     transactionDate: formData.get("transactionDate"),
-    paymentMethod:
-      typeof formData.get("paymentMethod") === "string"
-        ? formData.get("paymentMethod").trim().toUpperCase()
-        : "",
-    status:
-      typeof formData.get("status") === "string" ? formData.get("status").trim().toUpperCase() : "",
+    paymentMethod: typeof paymentMethodVal === "string" ? paymentMethodVal.trim().toUpperCase() : "",
+    status: typeof statusVal === "string" ? statusVal.trim().toUpperCase() : "",
   });
 
   if (!parsed.success) {
@@ -192,6 +190,8 @@ export async function updateTransaction(formData: FormData) {
       ? rawRedirectPreference
       : null;
 
+  const paymentMethodVal2 = formData.get("paymentMethod");
+  const statusVal2 = formData.get("status");
   const parsed = TransactionUpdateSchema.safeParse({
     id: formData.get("id"),
     transactionName: formData.get("transactionName"),
@@ -200,12 +200,8 @@ export async function updateTransaction(formData: FormData) {
     quantity: formData.get("quantity"),
     totalAmount: formData.get("totalAmount"),
     transactionDate: formData.get("transactionDate"),
-    paymentMethod:
-      typeof formData.get("paymentMethod") === "string"
-        ? formData.get("paymentMethod").trim().toUpperCase()
-        : "",
-    status:
-      typeof formData.get("status") === "string" ? formData.get("status").trim().toUpperCase() : "",
+    paymentMethod: typeof paymentMethodVal2 === "string" ? paymentMethodVal2.trim().toUpperCase() : "",
+    status: typeof statusVal2 === "string" ? statusVal2.trim().toUpperCase() : "",
   });
 
   if (!parsed.success) {
@@ -268,7 +264,8 @@ export async function deleteTransaction(formData: FormData) {
   const dbUserId = await ensureUserInDB();
   const ownerIds: OwnerIds = { primary: dbUserId, fallback: user.id };
 
-  const id = typeof formData.get("id") === "string" ? formData.get("id").trim() : "";
+  const idVal = formData.get("id");
+  const id = typeof idVal === "string" ? idVal.trim() : "";
   if (!id) {
     throw new Error("Missing transaction id");
   }
