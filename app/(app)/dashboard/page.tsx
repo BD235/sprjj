@@ -185,12 +185,12 @@ export default async function DashboardPage() {
         "bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-white/80",
     },
   ];
-  const usageRadialData = topUsedStocks.map((item, index) => ({
+  const usageRadialData = topUsedStocks.map((item: { productId: string; stockName: string; quantity: number }, index: number) => ({
     name: item.stockName,
     value: item.quantity,
     fill: usageColorPalette[index % usageColorPalette.length],
   }));
-  const totalUsageQuantity = topUsedStocks.reduce((sum, item) => sum + item.quantity, 0);
+  const totalUsageQuantity = topUsedStocks.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0);
   const usageTimeframeLabel = `${STOCK_USAGE_LOOKBACK_DAYS} hari terakhir`;
 
   return (
