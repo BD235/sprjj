@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 import { requireAnyRole } from "../role-guard";
 import { ensureUserInDB, getCurrentUser } from "../auth";
 import { prisma } from "../prisma";
@@ -333,7 +334,7 @@ export async function uploadSalesCsv(
 
     // 3. Execute Database Transaction
     await prisma.$transaction(
-      async (tx) => {
+      async (tx: Prisma.TransactionClient) => {
         // A. Verify all products exist and belong to the user
         // We only need to check existence and ownership, but we might as well lock them or check quantity if needed.
         // For now, just ensuring they exist is enough as per original logic.
