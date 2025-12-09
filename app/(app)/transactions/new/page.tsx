@@ -5,13 +5,6 @@ import { requireAnyRole } from "@/lib/role-guard";
 import type { SupplierOption } from "@/types/supplier";
 import { NewTransactionForm } from "./new-transaction-form";
 
-type ProductOption = {
-  id: string;
-  name: string;
-  price: number;
-  unit: string;
-};
-
 function toDatetimeLocal(date: Date) {
   const pad = (n: number) => n.toString().padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
@@ -37,8 +30,8 @@ export default async function NewTransactionPage() {
         where: { OR: [{ userId: user.id }, { userId: dbUserId }] },
         orderBy: { stockName: "asc" },
       })
-      .then((rows) =>
-        rows.map((p) => ({
+      .then((rows: { id: string; stockName: string; price: unknown; unit: string }[]) =>
+        rows.map((p: { id: string; stockName: string; price: unknown; unit: string }) => ({
           id: p.id,
           name: p.stockName,
           price: Number(p.price),
