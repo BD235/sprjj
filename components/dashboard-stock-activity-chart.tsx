@@ -25,12 +25,12 @@ interface DashboardStockActivityChartProps {
 }
 
 const chartConfig = {
-    desktop: {
-        label: "Stock Masuk",
+    stockIn: {
+        label: "Stock In",
         color: "#a8cfff",
     },
-    mobile: {
-        label: "Stock Keluar",
+    stockOut: {
+        label: "Stock Out",
         color: "#5c9dff",
     },
 } satisfies ChartConfig;
@@ -47,8 +47,8 @@ export function DashboardStockActivityChart({
     const [chartData, setChartData] = useState(
         initialData.map((item) => ({
             month: item.month,
-            desktop: item.stockIn,
-            mobile: item.stockOut,
+            stockIn: item.stockIn,
+            stockOut: item.stockOut,
         }))
     );
     const [isPending, startTransition] = useTransition();
@@ -85,8 +85,8 @@ export function DashboardStockActivityChart({
             setChartData(
                 data.map((item) => ({
                     month: item.month,
-                    desktop: item.stockIn,
-                    mobile: item.stockOut,
+                    stockIn: item.stockIn,
+                    stockOut: item.stockOut,
                 }))
             );
         });
@@ -139,30 +139,30 @@ export function DashboardStockActivityChart({
                                 />
                                 <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                                 <defs>
-                                    <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+                                    <linearGradient id="fillStockIn" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#d9e8ff" stopOpacity={0.95} />
                                         <stop offset="95%" stopColor="#f1f6ff" stopOpacity={0.25} />
                                     </linearGradient>
-                                    <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+                                    <linearGradient id="fillStockOut" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#bcd9ff" stopOpacity={0.95} />
                                         <stop offset="95%" stopColor="#e6f0ff" stopOpacity={0.25} />
                                     </linearGradient>
                                 </defs>
                                 <Area
-                                    dataKey="mobile"
+                                    dataKey="stockOut"
                                     type="natural"
-                                    fill="url(#fillMobile)"
+                                    fill="url(#fillStockOut)"
                                     fillOpacity={0.9}
-                                    stroke="var(--color-mobile)"
+                                    stroke="var(--color-stockOut)"
                                     stackId="a"
                                     strokeWidth={2}
                                 />
                                 <Area
-                                    dataKey="desktop"
+                                    dataKey="stockIn"
                                     type="natural"
-                                    fill="url(#fillDesktop)"
+                                    fill="url(#fillStockIn)"
                                     fillOpacity={0.9}
-                                    stroke="var(--color-desktop)"
+                                    stroke="var(--color-stockIn)"
                                     stackId="a"
                                     strokeWidth={2}
                                 />

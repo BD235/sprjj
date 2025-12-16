@@ -80,6 +80,12 @@ export function ChartTooltipContent({
         {payload.map((item) => {
           const key = item.dataKey ?? item.name ?? "value";
           const color = item.color ?? "currentColor";
+          // Map dataKey to user-friendly labels
+          const labelMap: Record<string, string> = {
+            stockIn: "Stock In",
+            stockOut: "Stock Out",
+          };
+          const displayLabel = labelMap[key] ?? item.name ?? key;
           const indicatorClass =
             indicator === "line"
               ? "h-0.5 w-4 rounded-full"
@@ -90,14 +96,14 @@ export function ChartTooltipContent({
             indicator === "dashed"
               ? { borderColor: color }
               : {
-                  backgroundColor: color,
-                };
+                backgroundColor: color,
+              };
 
           return (
             <div key={key} className="flex items-center justify-between gap-4">
               <span className="flex items-center gap-2 text-slate-500">
                 <span className={indicatorClass} style={indicatorStyle} />
-                {item.name ?? key}
+                {displayLabel}
               </span>
               <span className="font-semibold text-slate-900">
                 {item.value?.toLocaleString("id-ID")}

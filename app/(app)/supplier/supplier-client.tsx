@@ -331,11 +331,10 @@ export default function SupplierClient({ items, pageSize = 8, canDelete = false 
                 key={page}
                 type="button"
                 onClick={() => goToPage(page)}
-                className={`rounded-lg px-3 py-2 text-sm transition ${
-                  page === currentPage
+                className={`rounded-lg px-3 py-2 text-sm transition ${page === currentPage
                     ? "bg-purple-600 text-white shadow"
                     : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 {page}
               </button>

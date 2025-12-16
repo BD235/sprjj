@@ -196,7 +196,7 @@ function deriveTitle(pathname: string) {
     "/dashboard": "Dashboard",
     "/inventory": "Inventory",
     "/supplier": "Supplier",
-    "/transactions": "Transactions",
+    "/transactions": "Pembelian",
     "/settings": "Settings",
     "/add-product": "Add Product",
     "/add-supplier": "Add Supplier",

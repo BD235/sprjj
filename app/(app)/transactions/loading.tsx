@@ -1,15 +1,16 @@
 import Topbar from "@/components/topbar";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const tableHeadings = [
-  { key: "name", label: "Transaction Name", width: "w-48" },
-  { key: "date", label: "Transaction Date", width: "w-36" },
-  { key: "qty", label: "Quantity", width: "w-20" },
-  { key: "supplier", label: "Supplier", width: "w-36" },
-  { key: "price", label: "Total Price", width: "w-32" },
-  { key: "payment", label: "Payment Method", width: "w-32" },
-  { key: "status", label: "Status", width: "w-24" },
-  { key: "actions", label: "Actions", width: "w-32" },
+// Konfigurasi kolom skeleton - mudah ditambah/diubah
+const skeletonColumns = [
+  { key: "name", headerWidth: "w-36", type: "single" },        // Transaction Name
+  { key: "date", headerWidth: "w-32", type: "single" },        // Transaction Date
+  { key: "qty", headerWidth: "w-20", type: "single" },         // Quantity
+  { key: "supplier", headerWidth: "w-24", type: "single" },    // Supplier
+  { key: "price", headerWidth: "w-28", type: "single" },       // Total Price
+  { key: "payment", headerWidth: "w-32", type: "single" },     // Payment Method
+  { key: "status", headerWidth: "w-20", type: "badge" },       // Status
+  { key: "actions", headerWidth: "w-20", type: "actions" },    // Actions (3 buttons)
 ];
 
 const tableRows = Array.from({ length: 5 });
@@ -17,94 +18,50 @@ const tableRows = Array.from({ length: 5 });
 export default function TransactionsLoading() {
   return (
     <>
-      <Topbar />
+      <Topbar title="Pembelian" />
       <div className="h-6" />
       <div className="space-y-6">
-        <div className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-xl">
+        {/* Search & Button */}
+        <div className="rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Skeleton className="h-12 w-full flex-1 rounded-full" />
             <Skeleton className="h-12 w-full rounded-xl sm:w-44" />
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
-          <div className="overflow-x-auto">
-            <table className="min-w-[900px] w-full text-sm text-gray-700">
-              <thead className="bg-gray-200 text-left font-semibold text-gray-600">
+        {/* Table */}
+        <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="overflow-hidden">
+            <table className="w-full text-sm text-gray-700">
+              <thead className="bg-gray-200 text-gray-700">
                 <tr>
-                  {tableHeadings.map((column) => (
-                    <th key={column.key} className="px-6 py-3">
-                      <Skeleton className={`h-4 ${column.width}`} />
+                  {skeletonColumns.map((col) => (
+                    <th key={col.key} className="px-6 py-3 text-left font-semibold">
+                      <Skeleton className={`h-4 ${col.headerWidth}`} />
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
                 {tableRows.map((_, rowIndex) => (
-                  <tr key={`transactions-skeleton-row-${rowIndex}`}>
-                    {tableHeadings.map((column) => {
-                      if (column.key === "name") {
-                        return (
-                          <td key={`${rowIndex}-${column.key}`} className="px-6 py-4">
-                            <div className="space-y-2">
-                              <Skeleton className="h-4 w-48" />
-                              <Skeleton className="h-3 w-24" />
-                            </div>
-                          </td>
-                        );
-                      }
-
-                      if (column.key === "supplier") {
-                        return (
-                          <td key={`${rowIndex}-${column.key}`} className="px-6 py-4">
-                            <div className="space-y-2">
-                              <Skeleton className="h-4 w-36" />
-                              <Skeleton className="h-3 w-24" />
-                            </div>
-                          </td>
-                        );
-                      }
-
-                      if (column.key === "price") {
-                        return (
-                          <td key={`${rowIndex}-${column.key}`} className="px-6 py-4">
-                            <div className="space-y-2">
-                              <Skeleton className="h-4 w-28" />
-                              <Skeleton className="h-3 w-20" />
-                            </div>
-                          </td>
-                        );
-                      }
-
-                      if (column.key === "status") {
-                        return (
-                          <td key={`${rowIndex}-${column.key}`} className="px-6 py-4">
-                            <Skeleton className="h-6 w-24 rounded-full" />
-                          </td>
-                        );
-                      }
-
-                      if (column.key === "actions") {
-                        return (
-                          <td key={`${rowIndex}-${column.key}`} className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <Skeleton className="h-8 w-8 rounded-full" />
-                              <Skeleton className="h-8 w-8 rounded-full" />
-                              <Skeleton className="h-8 w-8 rounded-full" />
-                            </div>
-                          </td>
-                        );
-                      }
-
-                      return (
-                        <td key={`${rowIndex}-${column.key}`} className="px-6 py-4">
-                          <div className="space-y-2">
-                            <Skeleton className={`h-4 ${column.width}`} />
-                            <Skeleton className="h-3 w-16" />
+                  <tr key={`transactions-skeleton-row-${rowIndex}`} className="transition">
+                    {skeletonColumns.map((col) => (
+                      <td key={`${rowIndex}-${col.key}`} className="px-6 py-4">
+                        {col.type === "single" && (
+                          <Skeleton className="h-4 w-24" />
+                        )}
+                        {col.type === "badge" && (
+                          <Skeleton className="h-6 w-20 rounded-full" />
+                        )}
+                        {col.type === "actions" && (
+                          <div className="flex items-center gap-2">
+                            <Skeleton className="h-9 w-9 rounded-2xl" />
+                            <Skeleton className="h-9 w-9 rounded-2xl" />
+                            <Skeleton className="h-9 w-9 rounded-2xl" />
                           </div>
-                        </td>
-                      );
-                    })}
+                        )}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
@@ -112,12 +69,15 @@ export default function TransactionsLoading() {
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-3">
-          <Skeleton className="h-10 w-24" />
-          <Skeleton className="h-10 w-10" />
-          <Skeleton className="h-10 w-24" />
+        {/* Pagination */}
+        <div className="flex items-center justify-center gap-2">
+          <Skeleton className="h-10 w-16 rounded-lg" />
+          <Skeleton className="h-10 w-10 rounded-lg" />
+          <Skeleton className="h-10 w-10 rounded-lg" />
+          <Skeleton className="h-10 w-16 rounded-lg" />
         </div>
       </div>
     </>
   );
 }
+

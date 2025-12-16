@@ -564,30 +564,30 @@ export default function InventoryClient({
                 </label>
                 <input
                   type="number"
-                id="edit-quantity"
-                name="quantity"
-                min={0}
-                required
-                defaultValue={itemToEdit.quantity}
-                disabled={isUpdating}
-                className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
-              />
+                  id="edit-quantity"
+                  name="quantity"
+                  min={0}
+                  required
+                  defaultValue={itemToEdit.quantity}
+                  disabled={isUpdating}
+                  className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+                />
               </div>
               <div className="space-y-2">
-              <label htmlFor="edit-price" className="text-sm font-medium">
-                Price (Rp) *
-              </label>
-              <PriceInput
-                id="edit-price"
-                name="price"
-                min={0}
-                required
-                disabled={isUpdating}
-                defaultValue={itemToEdit.priceValue}
-                className="w-full"
-              />
-              <p className="text-xs text-gray-500">{priceHint(currentEditUnit)}</p>
-            </div>
+                <label htmlFor="edit-price" className="text-sm font-medium">
+                  Price (Rp) *
+                </label>
+                <PriceInput
+                  id="edit-price"
+                  name="price"
+                  min={0}
+                  required
+                  disabled={isUpdating}
+                  defaultValue={itemToEdit.priceValue}
+                  className="w-full"
+                />
+                <p className="text-xs text-gray-500">{priceHint(currentEditUnit)}</p>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -728,13 +728,13 @@ export default function InventoryClient({
               <input
                 type="number"
                 id="quantity"
-              name="quantity"
-              min={0}
-              required
-              placeholder="0"
-              disabled={isCreating}
-              className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
-            />
+                name="quantity"
+                min={0}
+                required
+                placeholder="0"
+                disabled={isCreating}
+                className="no-spinner w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
+              />
             </div>
             <div className="space-y-2">
               <label htmlFor="price" className="text-sm font-medium">
@@ -822,11 +822,10 @@ export default function InventoryClient({
                 key={page}
                 type="button"
                 onClick={() => goToPage(page)}
-                className={`rounded-lg px-3 py-2 text-sm transition ${
-                  page === currentPage
+                className={`rounded-lg px-3 py-2 text-sm transition ${page === currentPage
                     ? "bg-purple-600 text-white shadow"
                     : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 {page}
               </button>
