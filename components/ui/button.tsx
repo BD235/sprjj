@@ -12,6 +12,8 @@ const variantClasses = {
     "bg-white text-gray-900 ring-1 ring-gray-300 shadow-sm hover:bg-gray-50 focus-visible:ring-gray-400/60",
   ghost:
     "bg-transparent text-gray-700 hover:bg-gray-100 focus-visible:ring-gray-300/60",
+  danger:
+    "bg-red-600 text-white shadow hover:bg-red-700 focus-visible:ring-red-500/40",
 };
 
 const sizeClasses = {

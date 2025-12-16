@@ -25,5 +25,28 @@ body {
 }
 
 .no-spinner {
+  appearance: textfield;
   -moz-appearance: textfield;
+}
+
+/* Skeleton Shimmer Animation - diagonal from top-left to bottom-right */
+@keyframes shimmer {
+  0% {
+    background-position: -100% -100%;
+  }
+
+  100% {
+    background-position: 200% 200%;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(110deg,
+      #e2e8f0 0%,
+      #e2e8f0 40%,
+      #f8fafc 50%,
+      #e2e8f0 60%,
+      #e2e8f0 100%);
+  background-size: 200% 200%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }

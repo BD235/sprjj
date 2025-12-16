@@ -2,11 +2,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart3, ChevronDown, FilePen, LogOut, Package, Settings, Users, X } from "lucide-react";
+import { BarChart3, ChevronDown, FilePen, Package, Settings, Users, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import LogoutButton from "@/components/logout-button";
 import { sidebarEvents } from "@/lib/sidebar-events";
 
 type SidebarProps = {
@@ -19,7 +19,6 @@ export default function Sidebar({ currentPath, isOwner }: SidebarProps) {
   const path = currentPath ?? pathname ?? "";
   const isPathActive = (href: string) => path === href || path.startsWith(`${href}/`);
   const [transactionsOpen, setTransactionsOpen] = useState(isPathActive("/transactions"));
-  const [isSigningOut, setIsSigningOut] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const canManagePurchases = isOwner;
   const canAccessSales = true;
@@ -31,12 +30,6 @@ export default function Sidebar({ currentPath, isOwner }: SidebarProps) {
     { key: "supplier", name: "Supplier", href: "/supplier", icon: Users, show: isOwner },
     { key: "settings", name: "Settings", href: "/settings", icon: Settings, show: true },
   ] as const;
-
-  const handleLogout = () => {
-    if (isSigningOut) return;
-    setIsSigningOut(true);
-    signOut({ callbackUrl: "/sign-in" }).catch(() => setIsSigningOut(false));
-  };
 
   // Only auto-open when entering transactions page, don't auto-close when leaving
   useEffect(() => {
@@ -203,16 +196,7 @@ export default function Sidebar({ currentPath, isOwner }: SidebarProps) {
       </nav>
 
       <div className="mt-6">
-        <button
-          type="button"
-          onClick={handleLogout}
-          disabled={isSigningOut}
-          aria-label="Keluar"
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-800 transition hover:bg-red-50 hover:text-red-800 hover:ring-1 hover:ring-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <LogOut className="h-5 w-5" />
-          <span>Logout</span>
-        </button>
+        <LogoutButton variant="sidebar" />
       </div>
     </>
   );

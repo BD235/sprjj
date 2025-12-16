@@ -60,6 +60,25 @@ export default function SignInForm() {
         ? String(formData.get("confirmPassword"))
         : "";
 
+    // E-2: Validasi email dan password belum diisi (untuk mode sign-in)
+    if (!isRegister) {
+      if (!email && !password) {
+        setError("Email dan password wajib diisi.");
+        setIsSubmitting(false);
+        return;
+      }
+      if (!email) {
+        setError("Email wajib diisi.");
+        setIsSubmitting(false);
+        return;
+      }
+      if (!password) {
+        setError("Password wajib diisi.");
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     if (isRegister && password !== confirmPassword) {
       setError("Konfirmasi password tidak sama.");
       setIsSubmitting(false);
@@ -161,16 +180,16 @@ export default function SignInForm() {
           <label htmlFor="email" className="text-sm font-semibold text-gray-900">
             Email
           </label>
-            <Input
-              type="email"
-              id="email"
-              name="email"
-              required
-              autoComplete="email"
-              placeholder="email"
-              className="rounded-lg"
-            />
-          </div>
+          <Input
+            type="email"
+            id="email"
+            name="email"
+            required={isRegister}
+            autoComplete="email"
+            placeholder="email"
+            className="rounded-lg"
+          />
+        </div>
 
         {!isRegister && (
           <div className="space-y-2">
@@ -181,7 +200,6 @@ export default function SignInForm() {
               type="password"
               id="password"
               name="password"
-              required
               autoComplete="current-password"
               placeholder="Password"
               className="rounded-lg"
