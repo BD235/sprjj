@@ -44,3 +44,9 @@ next-env.d.ts
 
 # Documentation
 docs/
+
+# Test results
+test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
