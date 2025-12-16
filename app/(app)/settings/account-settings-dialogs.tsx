@@ -20,12 +20,20 @@ export default function AccountSettingsDialogs({ initialUsername }: AccountSetti
   const closePasswordModal = () => setIsPasswordModalOpen(false);
 
   return (
-    <div className="space-y-2">
+    <div className="mt-6 space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Button onClick={openUsernameModal} className="flex-1 text-sm" size="sm">
+        <Button
+          onClick={openUsernameModal}
+          className="w-full min-h-[48px] py-3 text-base sm:w-auto sm:flex-1"
+          size="md"
+        >
           Ubah Username
         </Button>
-        <Button onClick={openPasswordModal} className="flex-1 text-sm" size="sm">
+        <Button
+          onClick={openPasswordModal}
+          className="w-full min-h-[48px] py-3 text-base sm:w-auto sm:flex-1"
+          size="md"
+        >
           Ubah Password
         </Button>
       </div>
@@ -54,3 +62,4 @@ export default function AccountSettingsDialogs({ initialUsername }: AccountSetti
     </div>
   );
 }
+
