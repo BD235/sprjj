@@ -30,6 +30,15 @@ const STATUS_OPTIONS = [
   { value: "INACTIVE", label: "Inactive" },
 ] as const;
 
+const CATEGORY_OPTIONS = [
+  "Daging Segar & Ikan",
+  "Sayuran",
+  "Bumbu & Rempah",
+  "Sembako & Bahan Kering",
+  "Kemasan",
+  "Operasional",
+] as const;
+
 const statusClasses: Record<string, string> = {
   ACTIVE: "bg-green-100 text-green-700",
   INACTIVE: "bg-gray-200 text-gray-600",
@@ -332,8 +341,8 @@ export default function SupplierClient({ items, pageSize = 8, canDelete = false 
                 type="button"
                 onClick={() => goToPage(page)}
                 className={`rounded-lg px-3 py-2 text-sm transition ${page === currentPage
-                    ? "bg-purple-600 text-white shadow"
-                    : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-100"
+                  ? "bg-purple-600 text-white shadow"
+                  : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-100"
                   }`}
               >
                 {page}
@@ -480,8 +489,23 @@ export default function SupplierClient({ items, pageSize = 8, canDelete = false 
                   type="tel"
                   id="edit-whatsappNumber"
                   name="whatsappNumber"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  placeholder="e.g. 628123456789"
                   defaultValue={itemToEdit.whatsappNumber ?? ""}
                   disabled={isUpdating}
+                  onKeyDown={(e) => {
+                    if (
+                      !/[0-9]/.test(e.key) &&
+                      e.key !== "Backspace" &&
+                      e.key !== "Delete" &&
+                      e.key !== "ArrowLeft" &&
+                      e.key !== "ArrowRight" &&
+                      e.key !== "Tab"
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
                 />
               </div>
@@ -489,15 +513,20 @@ export default function SupplierClient({ items, pageSize = 8, canDelete = false 
                 <label htmlFor="edit-category" className="text-sm font-medium">
                   Category Seller *
                 </label>
-                <input
-                  type="text"
+                <select
                   id="edit-category"
                   name="category"
                   required
                   defaultValue={itemToEdit.category ?? ""}
                   disabled={isUpdating}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
-                />
+                >
+                  {CATEGORY_OPTIONS.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -593,8 +622,22 @@ export default function SupplierClient({ items, pageSize = 8, canDelete = false 
                 type="tel"
                 id="add-whatsappNumber"
                 name="whatsappNumber"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 placeholder="e.g. 628123456789"
                 disabled={isCreating}
+                onKeyDown={(e) => {
+                  if (
+                    !/[0-9]/.test(e.key) &&
+                    e.key !== "Backspace" &&
+                    e.key !== "Delete" &&
+                    e.key !== "ArrowLeft" &&
+                    e.key !== "ArrowRight" &&
+                    e.key !== "Tab"
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
               />
             </div>
@@ -602,15 +645,23 @@ export default function SupplierClient({ items, pageSize = 8, canDelete = false 
               <label htmlFor="add-category" className="text-sm font-medium">
                 Category Seller *
               </label>
-              <input
-                type="text"
+              <select
                 id="add-category"
                 name="category"
                 required
-                placeholder="Enter category"
+                defaultValue=""
                 disabled={isCreating}
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/40"
-              />
+              >
+                <option value="" disabled>
+                  Pilih kategori
+                </option>
+                {CATEGORY_OPTIONS.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

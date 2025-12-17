@@ -78,8 +78,8 @@ export async function updateProfileAction(
     });
 
     if (conflict) {
-      return errorState("Username tidak tersedia.", {
-        username: "Username tidak tersedia.",
+      return errorState("Username sudah digunakan.", {
+        username: "Username sudah digunakan.",
       });
     }
 
