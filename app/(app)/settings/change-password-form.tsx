@@ -119,14 +119,9 @@ export default function ChangePasswordForm({ onSuccess, onCancel }: ChangePasswo
       </div>
 
       <div aria-live="polite">
-        {state.message && (
+        {state.message && state.status === "success" && (
           <p
-            className={clsx(
-              "rounded-xl border px-4 py-2 text-sm font-medium",
-              state.status === "success"
-                ? "border-green-200 bg-green-50 text-green-700"
-                : "border-red-200 bg-red-50 text-red-700",
-            )}
+            className="rounded-xl border px-4 py-2 text-sm font-medium border-green-200 bg-green-50 text-green-700"
           >
             {state.message}
           </p>
